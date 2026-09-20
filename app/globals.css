@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-maroon-primary: #501518;
+  --color-maroon-dark: #380C10;
+  --color-maroon-light: #6B1D23;
+  --color-gold-primary: #C59B4B;
+  --color-gold-light: #FBF4E6;
+  --color-cream-base: #FAF6F0;
+  --color-cream-surface: #F4EDE2;
+}
+
+@layer base {
+  :root {
+    --background: #FAF6F0;
+    --foreground: #2C1A14;
+    
+    /* Brand Maroon Palette */
+    --color-maroon-900: #380C10;
+    --color-maroon-800: #501518;
+    --color-maroon-700: #6B1D23;
+    --color-maroon-600: #88252C;
+    --color-maroon-50: #FDF3F3;
+    
+    /* Brand Gold Palette */
+    --color-gold-700: #7A5B1E;
+    --color-gold-600: #9C772C;
+    --color-gold-500: #C59B4B;
+    --color-gold-400: #D8B264;
+    --color-gold-300: #E7CB8E;
+    --color-gold-100: #FBF4E6;
+    
+    /* Brand Cream / Ivory Palette */
+    --color-cream-50: #FFFDF9;
+    --color-cream-100: #FAF6F0;
+    --color-cream-200: #F4EDE2;
+    --color-cream-300: #EBE0D2;
+    --color-cream-border: #E8DFD3;
+    
+    /* Warm Typography Colors */
+    --color-warm-dark: #2C1A14;
+    --color-warm-muted: #614D43;
+  }
+}
+
+body {
+  background-color: var(--color-cream-100);
+  color: var(--color-warm-dark);
+  font-family: var(--font-noto-sans-gujarati), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Devotional Headings & Titles */
+h1, h2, h3, h4, .font-serif-gu {
+  font-family: var(--font-noto-serif-gujarati), serif;
+}
+
+/* TipTap Editor Styles */
+.tiptap {
+  min-height: 250px;
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #614D43;
+  opacity: 0.5;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid #C59B4B;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: #501518;
+  background-color: rgba(244, 237, 226, 0.4);
+  padding: 0.5rem 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 1px solid rgba(197, 155, 75, 0.4);
+  margin: 1.5rem 0;
+}
+
+/* Custom Scrollbar with devotional tones */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EDE2;
+}
+::-webkit-scrollbar-thumb {
+  background: #C59B4B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #501518;
+}
+
+/* Subtle devotional card hover lift */
+.card-devotional {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-devotional:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(80, 21, 24, 0.08), 0 8px 10px -6px rgba(197, 155, 75, 0.1);
+}

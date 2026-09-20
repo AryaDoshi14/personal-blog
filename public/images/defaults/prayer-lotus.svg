@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Sacred Lotus / Kamal -->
+  <!-- Center Petal -->
+  <path d="M24 10 C21 17, 21 24, 24 32 C27 24, 27 17, 24 10 Z" fill="#D4AF37" fill-opacity="0.15"/>
+  <!-- Inner Side Petals -->
+  <path d="M24 32 C17 28, 14 20, 18 14 C21 20, 22 26, 24 32 Z" fill="#D4AF37" fill-opacity="0.15"/>
+  <path d="M24 32 C31 28, 34 20, 30 14 C27 20, 26 26, 24 32 Z" fill="#D4AF37" fill-opacity="0.15"/>
+  <!-- Outer Side Petals -->
+  <path d="M24 32 C13 32, 9 24, 11 19 C15 25, 19 29, 24 32 Z" fill="#D4AF37" fill-opacity="0.1"/>
+  <path d="M24 32 C35 32, 39 24, 37 19 C33 25, 29 29, 24 32 Z" fill="#D4AF37" fill-opacity="0.1"/>
+  <!-- Lotus Base Calyx -->
+  <path d="M16 35 C20 37, 28 37, 32 35" stroke-width="2"/>
+  <path d="M20 38 C22 40, 26 40, 28 38" stroke-width="1.5"/>
+</svg>

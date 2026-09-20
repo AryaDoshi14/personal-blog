@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" fill="none" stroke="#C59B4B" stroke-width="1.2" stroke-opacity="0.18">
+  <!-- Delicate Lotus Watermark for Hero Background -->
+  <circle cx="150" cy="150" r="140" stroke-dasharray="3 4" stroke-opacity="0.12"/>
+  <circle cx="150" cy="150" r="105" stroke-opacity="0.15"/>
+  <path d="M150 40 C135 75, 135 105, 150 130 C165 105, 165 75, 150 40 Z" fill="#C59B4B" fill-opacity="0.04"/>
+  <path d="M150 260 C135 225, 135 195, 150 170 C165 195, 165 225, 150 260 Z" fill="#C59B4B" fill-opacity="0.04"/>
+  <path d="M40 150 C75 135, 105 135, 130 150 C105 165, 75 165, 40 150 Z" fill="#C59B4B" fill-opacity="0.04"/>
+  <path d="M260 150 C225 135, 195 135, 170 150 C195 165, 225 165, 260 150 Z" fill="#C59B4B" fill-opacity="0.04"/>
+  
+  <path d="M72 72 C100 88, 118 106, 124 124 C106 118, 88 100, 72 72 Z" fill="#C59B4B" fill-opacity="0.03"/>
+  <path d="M228 72 C200 88, 182 106, 176 124 C194 118, 212 100, 228 72 Z" fill="#C59B4B" fill-opacity="0.03"/>
+  <path d="M72 228 C100 212, 118 194, 124 176 C106 182, 88 200, 72 228 Z" fill="#C59B4B" fill-opacity="0.03"/>
+  <path d="M228 228 C200 212, 182 194, 176 176 C194 182, 212 200, 228 228 Z" fill="#C59B4B" fill-opacity="0.03"/>
+  
+  <!-- Outer lotus leaves -->
+  <path d="M150 150 C110 90, 80 140, 150 150" stroke-opacity="0.12"/>
+  <path d="M150 150 C190 90, 220 140, 150 150" stroke-opacity="0.12"/>
+</svg>

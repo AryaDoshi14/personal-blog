@@ -1,15 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Sacred Peacock Feather / Morpankh -->
-  <!-- Central Shaft -->
-  <path d="M12 42 C16 34, 23 23, 27 8" stroke-width="2"/>
-  <!-- Feather Eye Outline -->
-  <ellipse cx="28" cy="16" rx="9" ry="12" stroke="#D4AF37" stroke-width="1.5" transform="rotate(15 28 16)"/>
-  <!-- Inner Eye Core -->
-  <ellipse cx="28" cy="17" rx="5" ry="7" fill="#D4AF37" fill-opacity="0.25" stroke="#D4AF37" stroke-width="1.5" transform="rotate(15 28 17)"/>
-  <circle cx="28" cy="17" r="2.5" fill="#D4AF37"/>
-  <!-- Radiating Barbs -->
-  <path d="M22 25 C17 25, 14 28, 11 31" stroke-width="1.2"/>
-  <path d="M24 22 C18 20, 15 22, 13 25" stroke-width="1.2"/>
-  <path d="M26 29 C29 30, 33 32, 36 34" stroke-width="1.2"/>
-  <path d="M25 25 C29 25, 33 26, 37 28" stroke-width="1.2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" fill="none" stroke="#D4AF37">
+  <!-- Forearms -->
+  <path d="M16 84 L26 73 L39 81 L30 90 Z" fill="#D4AF37" fill-opacity="0.2" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M84 84 L74 73 L61 81 L70 90 Z" fill="#D4AF37" fill-opacity="0.2" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Hands (Palms & Fingers pressed together in Namaste 🙏) -->
+  <path d="M50 14 C48.5 14.5, 47 16, 46 18 L34 42 L37 58 L43 65 L50 71 L57 65 L63 58 L66 42 L54 18 C53 16, 51.5 14.5, 50 14 Z"
+        fill="#D4AF37" fill-opacity="0.25" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center Palm-to-Palm Joining Line -->
+  <line x1="50" y1="14" x2="50" y2="71" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Thumbs Arch nestled in the center -->
+  <path d="M43 54 L43 43 C43 38.5, 47 38.5, 50 38.5 C53 38.5, 57 38.5, 57 43 L57 54"
+        stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="#D4AF37" fill-opacity="0.18"/>
+
+  <!-- Left Wrist Bangles (Golden Kangan) -->
+  <rect x="23" y="66.75" width="20" height="6.5" rx="3.25" transform="rotate(38 33 70)"
+        fill="#D4AF37" fill-opacity="0.8" stroke="#D4AF37" stroke-width="3.2" stroke-linejoin="round"/>
+  <rect x="28" y="58.75" width="20" height="6.5" rx="3.25" transform="rotate(38 38 62)"
+        fill="#D4AF37" fill-opacity="0.8" stroke="#D4AF37" stroke-width="3.2" stroke-linejoin="round"/>
+
+  <!-- Right Wrist Bangles (Golden Kangan) -->
+  <rect x="57" y="66.75" width="20" height="6.5" rx="3.25" transform="rotate(-38 67 70)"
+        fill="#D4AF37" fill-opacity="0.8" stroke="#D4AF37" stroke-width="3.2" stroke-linejoin="round"/>
+  <rect x="52" y="58.75" width="20" height="6.5" rx="3.25" transform="rotate(-38 62 62)"
+        fill="#D4AF37" fill-opacity="0.8" stroke="#D4AF37" stroke-width="3.2" stroke-linejoin="round"/>
 </svg>

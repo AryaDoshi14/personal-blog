@@ -3,9 +3,10 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
 import BilingualTabs from './BilingualTabs';
 import { createPrayer, updatePrayer, type PrayerActionResult } from '@/app/actions/prayers';
+import { translatePrayerFields } from '@/app/actions/translate';
 import { Prayer } from '@/types';
 
 interface PrayerFormProps {
@@ -49,6 +50,53 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
         .trim()
         .replace(/\s+/g, '-');
       if (generated) setSlug(generated);
+    }
+  };
+
+  // Auto-translate state & handler
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
+  const [translateSuccess, setTranslateSuccess] = useState<string | null>(null);
+
+  const handleAutoTranslate = async () => {
+    setTranslateError(null);
+    setTranslateSuccess(null);
+
+    if (!titleGu.trim() && !contentGu.trim()) {
+      setTranslateError('કૃપા કરીને પહેલા ગુજરાતી સ્તુતિનું શીર્ષક અથવા લખાણ લખો. (Please write Gujarati title or prayer text first.)');
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const result = await translatePrayerFields({
+        title_gu: titleGu,
+        subtitle_gu: subtitleGu,
+        content_gu: contentGu,
+      });
+
+      if (!result.success || !result.data) {
+        setTranslateError(result.error || 'અનુવાદ કરવામાં નિષ્ફળ. (Translation failed)');
+      } else {
+        setTitleEn(result.data.title_en);
+        setSubtitleEn(result.data.subtitle_en);
+        setContentEn(result.data.content_en);
+
+        if (!isSlugManuallyEdited && !initialData && result.data.title_en) {
+          const generated = result.data.title_en
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-');
+          if (generated) setSlug(generated);
+        }
+
+        setTranslateSuccess('સ્તુતિનો અંગ્રેજી અનુવાદ તૈયાર થયો છે! કૃપા કરીને સાચવતા પહેલા તેની સમીક્ષા કરો. (Draft translated! Please review before saving.)');
+      }
+    } catch (err) {
+      setTranslateError(err instanceof Error ? err.message : 'Translation error');
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -235,6 +283,51 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
         {/* ENGLISH TAB */}
         {activeTab === 'en' && (
           <div className="space-y-4">
+            {/* Auto-Translate Action Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-gold-primary/10 border border-gold-primary/30">
+              <div>
+                <h4 className="text-xs font-bold text-maroon-primary flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-gold-dark" />
+                  AI Auto-Translate (ગુજરાતીમાંથી અંગ્રેજી)
+                </h4>
+                <p className="text-[11px] text-maroon-primary/70 mt-0.5">
+                  ગુજરાતી સ્તુતિ/શ્લોકમાંથી આપમેળે અંગ્રેજી ડ્રાફ્ટ તૈયાર કરો. સાચવતા પહેલા સમીક્ષા કરો.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={isTranslating}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-maroon-primary text-cream-base hover:bg-maroon-dark transition-colors disabled:opacity-50 shrink-0 shadow-xs cursor-pointer"
+              >
+                {isTranslating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    અનુવાદ થઈ રહ્યો છે...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-gold-primary" />
+                    Auto-Translate to English
+                  </>
+                )}
+              </button>
+            </div>
+
+            {translateError && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{translateError}</span>
+              </div>
+            )}
+
+            {translateSuccess && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-xs text-green-800 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 shrink-0" />
+                <span>{translateSuccess}</span>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-maroon-primary mb-1.5">
                 English Title (Optional)

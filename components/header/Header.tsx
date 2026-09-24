@@ -4,13 +4,15 @@ import Image from 'next/image';
 import { Language } from '@/types';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileMenu } from './MobileMenu';
+import { HeaderAuthWidget } from '@/components/auth/HeaderAuthWidget';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 interface HeaderProps {
   lang: Language;
   siteName: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lang, siteName }) => {
+export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
   const navLinks = [
     { href: `/${lang}`, labelGu: 'મુખ્ય પાનું', labelEn: 'Home' },
     { href: `/${lang}/prayers`, labelGu: 'પ્રાર્થનાઓ', labelEn: 'Prayers' },
@@ -18,6 +20,23 @@ export const Header: React.FC<HeaderProps> = ({ lang, siteName }) => {
     { href: `/${lang}/blog`, labelGu: 'મારા લેખો', labelEn: 'My Articles' },
     { href: `/${lang}/contact`, labelGu: 'સંપર્ક', labelEn: 'Contact' },
   ];
+
+  // Fetch viewer display name for mobile menu (admins excluded)
+  let mobileUserName: string | null = null;
+  const supabase = await createServerSupabaseClient();
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, full_name, email')
+        .eq('id', user.id)
+        .single();
+      if (profile && profile.role === 'viewer') {
+        mobileUserName = profile.full_name || profile.email?.split('@')[0] || null;
+      }
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#FAF6F0]/95 backdrop-blur-sm border-b border-[#E8DFD3]/80 transition-shadow">
@@ -54,13 +73,14 @@ export const Header: React.FC<HeaderProps> = ({ lang, siteName }) => {
           ))}
         </nav>
 
-        {/* Desktop Language Switcher */}
-        <div className="hidden md:flex items-center">
+        {/* Desktop Language Switcher + Auth Widget */}
+        <div className="hidden md:flex items-center gap-3">
+          <HeaderAuthWidget lang={lang} />
           <LanguageSwitcher currentLang={lang} />
         </div>
 
         {/* Mobile Navigation Drawer */}
-        <MobileMenu lang={lang} siteName={siteName} />
+        <MobileMenu lang={lang} siteName={siteName} userDisplayName={mobileUserName} />
       </div>
     </header>
   );

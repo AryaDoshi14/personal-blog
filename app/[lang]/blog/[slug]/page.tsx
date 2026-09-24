@@ -17,9 +17,12 @@ interface PostDetailPageProps {
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const { lang, slug } = await params;
+  const resolvedParams = await params;
+  console.log('[DEBUG PostDetailPage] resolvedParams:', resolvedParams);
+  const { lang, slug } = resolvedParams;
 
   if (lang !== 'gu' && lang !== 'en') {
+    console.log('[DEBUG PostDetailPage] Invalid lang:', lang);
     notFound();
   }
 
@@ -27,7 +30,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const isGu = validLang === 'gu';
 
   const post = await getPostBySlug(slug);
+  console.log('[DEBUG PostDetailPage] post found:', Boolean(post), 'slug:', slug);
   if (!post) {
+    console.log('[DEBUG PostDetailPage] notFound() triggered because post is null for slug:', slug);
     notFound();
   }
 

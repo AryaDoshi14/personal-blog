@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   role TEXT NOT NULL DEFAULT 'viewer' CHECK (role IN ('admin', 'viewer')),
   email TEXT,
   full_name TEXT,
+  avatar_url TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -268,6 +269,17 @@ CREATE POLICY "Admins can view all profiles"
 CREATE POLICY "Admins can update profiles"
   ON public.profiles FOR UPDATE
   USING (public.is_admin());
+
+-- Viewers can update their own name/avatar
+CREATE POLICY "Users can update their own profile"
+  ON public.profiles FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+-- Required so the SECURITY DEFINER trigger can insert on signup
+CREATE POLICY "Users can insert their own profile"
+  ON public.profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
 
 -- CATEGORIES POLICIES
 CREATE POLICY "Anyone can view categories"

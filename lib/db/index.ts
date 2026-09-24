@@ -185,12 +185,15 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         .eq('status', 'published')
         .maybeSingle();
 
+      console.log('[DEBUG getPostBySlug] DB result - data:', Boolean(data), 'error:', error?.message || null);
       if (!error && data) {
         return data as Post;
       }
     }
 
-    return DEFAULT_POSTS.find((p) => p.slug === slug) || null;
+    const fallback = DEFAULT_POSTS.find((p) => p.slug === slug) || null;
+    console.log('[DEBUG getPostBySlug] Fallback found:', Boolean(fallback), 'slug:', slug);
+    return fallback;
   } catch (err) {
     console.error('Error in getPostBySlug:', err);
     return DEFAULT_POSTS.find((p) => p.slug === slug) || null;

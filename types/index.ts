@@ -85,9 +85,13 @@ export interface Profile {
   role: 'admin' | 'viewer';
   email?: string | null;
   full_name?: string | null;
+  avatar_url?: string | null;
   created_at: string;
   updated_at: string;
 }
+
+/** A logged-in public visitor (role = 'viewer') */
+export type PublicUser = Profile & { role: 'viewer' };
 
 export interface ContactMessage {
   id: string;

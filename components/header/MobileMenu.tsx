@@ -3,17 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Language } from '@/types';
+import { publicSignOut } from '@/app/actions/public-auth';
 
 interface MobileMenuProps {
   lang: Language;
   siteName: string;
+  /** Pass the display name of a logged-in non-admin viewer. Null/undefined = guest. */
+  userDisplayName?: string | null;
 }
 
-export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName }) => {
+export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, userDisplayName }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const isGu = lang === 'gu';
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -114,6 +118,54 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName }) => {
                 {lang === 'gu' ? link.labelGu : link.labelEn}
               </Link>
             ))}
+
+            {/* Auth section separator */}
+            <div className="my-3 border-t border-[#E8DFD3]" />
+
+            {userDisplayName ? (
+              /* Signed-in user */
+              <>
+                <div className="px-4 py-2 text-xs text-[#8C6D2D] font-serif-gu">
+                  {isGu ? 'ભક્ત:' : 'Signed in as:'} <strong>{userDisplayName}</strong>
+                </div>
+                <form
+                  action={async () => {
+                    await publicSignOut(lang);
+                  }}
+                >
+                  <button
+                    type="submit"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[#501518] hover:bg-[#FAF6F0] font-serif-gu font-semibold"
+                    style={{ fontSize: '16px' }}
+                  >
+                    <LogOut className="w-4 h-4 text-[#C59B4B]" />
+                    {isGu ? 'બહાર નીકળો' : 'Sign Out'}
+                  </button>
+                </form>
+              </>
+            ) : (
+              /* Guest */
+              <>
+                <Link
+                  href={`/${lang}/auth/login`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 mb-1 rounded-xl text-[#501518] hover:bg-[#FAF6F0] font-semibold"
+                  style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif', fontSize: '16px' }}
+                >
+                  <LogIn className="w-4 h-4 text-[#C59B4B]" />
+                  {isGu ? 'પ્રવેશ' : 'Login'}
+                </Link>
+                <Link
+                  href={`/${lang}/auth/signup`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#501518] text-white font-semibold"
+                  style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif', fontSize: '16px' }}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {isGu ? 'નોંધણી' : 'Sign Up'}
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* ── Footer Blessing ── */}

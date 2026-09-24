@@ -29,6 +29,10 @@ export interface Post {
   category_id?: string | null;
   category?: Category | null;
   status: 'draft' | 'published';
+  author_name_gu: string;
+  author_name_en?: string | null;
+  author_id?: string | null;
+  likes_count: number;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -93,5 +97,41 @@ export interface ContactMessage {
   subject?: string | null;
   message: string;
   is_read: boolean;
+  created_at: string;
+}
+
+export interface PostLike {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+  user?: Profile | null;
+  post?: {
+    id: string;
+    slug: string;
+    title_gu: string;
+    title_en?: string | null;
+  } | null;
+}
+
+export interface Media {
+  id: string;
+  file_name: string;
+  file_path: string;
+  storage_path?: string | null;
+  mime_type?: string | null;
+  size_bytes?: number | null;
+  alt_text?: string | null;
+  post_id?: string | null;
   created_at: string;
 }

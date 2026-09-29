@@ -59,7 +59,9 @@ async function callGemini(prompt: string, schemaDescription: string): Promise<st
 
   // Use gemini-2.5-flash with fallback to gemini-1.5-flash
   const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // NOTE: API key is sent in the header, NOT in the URL, to avoid it appearing
+  // in server logs, browser history, or Referer headers.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   const requestBody = {
     system_instruction: {
@@ -78,12 +80,18 @@ async function callGemini(prompt: string, schemaDescription: string): Promise<st
     generationConfig: {
       temperature: 0.3,
       response_mime_type: 'application/json',
+      // Prevent truncation on long posts; Gemini 2.5 Flash supports up to 8192
+      maxOutputTokens: 8192,
     },
   };
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      // Send key in header, not in URL query string
+      'x-goog-api-key': apiKey,
+    },
     body: JSON.stringify(requestBody),
   });
 

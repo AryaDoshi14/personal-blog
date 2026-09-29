@@ -1,7 +1,8 @@
 'use server';
 
 import { contactFormSchema } from '@/lib/validations/settings';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/supabase/rate-limit';
 
 export async function handleContactFormSubmit(formData: {
   name: string;
@@ -11,9 +12,8 @@ export async function handleContactFormSubmit(formData: {
   message: string;
   website?: string;
 }): Promise<{ success: boolean; error?: string }> {
-  // Honeypot check
+  // Honeypot: silently drop bot submissions
   if (formData.website && formData.website.trim().length > 0) {
-    // Silently drop bot submission
     return { success: true };
   }
 
@@ -25,13 +25,22 @@ export async function handleContactFormSubmit(formData: {
 
   const { name, email, phone, subject, message } = validationResult.data;
 
+  // Rate-limit: max 5 contact submissions per email per hour
+  const allowed = await checkRateLimit(`contact:${email}`, 5, 3600);
+  if (!allowed) {
+    return { success: false, error: 'Too many submissions. Please try again later.' };
+  }
+
   try {
-    const supabase = await createServerSupabaseClient();
-    if (!supabase) {
-      return { success: true }; // Local test fallback
+    // Use service-role client: the anon INSERT policy on messages is revoked.
+    // All validation and honeypot checks happen above, so this is safe.
+    const admin = createAdminClient();
+    if (!admin) {
+      // Graceful local-dev fallback (no service role key configured)
+      return { success: true };
     }
 
-    const { error } = await supabase.from('messages').insert({
+    const { error } = await admin.from('messages').insert({
       name,
       email,
       phone: phone || null,
@@ -40,14 +49,15 @@ export async function handleContactFormSubmit(formData: {
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      console.error('Contact form DB error:', error.message);
+      // Hide raw DB errors from the caller
+      return { success: false, error: 'Failed to send message. Please try again.' };
     }
 
     return { success: true };
   } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Failed to send message',
-    };
+    console.error('Contact form unexpected error:', err);
+    return { success: false, error: 'Failed to send message. Please try again.' };
   }
 }
+

@@ -6,6 +6,13 @@ import { revalidatePath } from 'next/cache';
 
 import { checkRateLimit } from '@/lib/supabase/rate-limit';
 
+/** Allowed locale segments — guards against open-redirect via the lang param. */
+const VALID_LANGS = new Set(['gu', 'en']);
+function safeLang(raw: string | null | undefined): 'gu' | 'en' {
+  const l = (raw ?? '').trim().toLowerCase();
+  return VALID_LANGS.has(l) ? (l as 'gu' | 'en') : 'gu';
+}
+
 // ---------------------------------------------------------------------------
 // PUBLIC SIGNUP
 // ---------------------------------------------------------------------------
@@ -31,8 +38,8 @@ export async function publicSignUp(
   }
 
   // Rate-limit: max 5 signup attempts per email per hour
-  const limited = await checkRateLimit(`signup:${email}`, 5, 3600);
-  if (!limited) {
+  const allowed = await checkRateLimit(`signup:${email}`, 5, 3600);
+  if (!allowed) {
     return { error: 'Too many signup attempts. Please try again later.' };
   }
 
@@ -70,7 +77,7 @@ export async function publicSignIn(
 ) {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
   const password = formData.get('password') as string;
-  const lang = (formData.get('lang') as string) || 'gu';
+  const lang = safeLang(formData.get('lang') as string);
   const honeypot = formData.get('website') as string;
 
   if (honeypot) return { error: 'Invalid request.' };
@@ -80,8 +87,8 @@ export async function publicSignIn(
   }
 
   // Rate-limit: max 10 login attempts per email per 15 minutes
-  const limited = await checkRateLimit(`login:${email}`, 10, 900);
-  if (!limited) {
+  const allowed = await checkRateLimit(`login:${email}`, 10, 900);
+  if (!allowed) {
     return { error: 'Too many login attempts. Please wait 15 minutes and try again.' };
   }
 
@@ -105,12 +112,13 @@ export async function publicSignIn(
 // PUBLIC LOGOUT
 // ---------------------------------------------------------------------------
 export async function publicSignOut(lang: string = 'gu') {
+  const safeLangValue = safeLang(lang);
   const supabase = await createServerSupabaseClient();
   if (supabase) {
     await supabase.auth.signOut();
   }
-  revalidatePath(`/${lang}`, 'layout');
-  redirect(`/${lang}`);
+  revalidatePath(`/${safeLangValue}`, 'layout');
+  redirect(`/${safeLangValue}`);
 }
 
 // ---------------------------------------------------------------------------

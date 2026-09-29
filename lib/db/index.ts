@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requireAdmin } from '@/lib/supabase/admin-guard';
 import {
   DEFAULT_CATEGORIES,
   DEFAULT_POSTS,
@@ -310,41 +311,9 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   }
 }
 
-// ==============================================================================
-// MESSAGES (Contact Form Submission)
-// ==============================================================================
-export async function submitContactMessage(message: {
-  name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
-  message: string;
-}): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createServerSupabaseClient();
-    if (!supabase) {
-      // In local mode without Supabase connection, return success for form testing
-      return { success: true };
-    }
+// Dead code removed: submitContactMessage was a duplicate of app/actions/contact.ts.
+// Use handleContactFormSubmit from @/app/actions/contact instead.
 
-    const { error } = await supabase.from('messages').insert({
-      name: message.name,
-      email: message.email,
-      phone: message.phone || null,
-      subject: message.subject || null,
-      message: message.message,
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-    return { success: false, error: errorMsg };
-  }
-}
 
 // ==============================================================================
 // COMMENTS
@@ -409,6 +378,15 @@ export async function getApprovedComments(postId: string): Promise<Comment[]> {
 }
 
 export async function getAllCommentsForAdmin(): Promise<Comment[]> {
+  // Security guard: must be called from an admin-authenticated context.
+  // Even though admin pages should be protected by middleware, this defence-in-depth
+  // check ensures that a misconfigured matcher cannot expose commenter emails.
+  const { error: authError } = await requireAdmin();
+  if (authError) {
+    console.error('getAllCommentsForAdmin: unauthorised access attempt –', authError);
+    return [];
+  }
+
   try {
     const admin = createAdminClient();
     const client = admin || (await createServerSupabaseClient());

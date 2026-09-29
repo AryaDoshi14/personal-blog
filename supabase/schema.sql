@@ -34,13 +34,16 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    COALESCE(
+      NULLIF(TRIM(NEW.raw_user_meta_data->>'full_name'), ''),
+      SPLIT_PART(NEW.email, '@', 1)
+    ),
     'viewer'
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -56,7 +59,7 @@ BEGIN
     WHERE id = auth.uid() AND role = 'admin'
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
 
 -- 4. CATEGORIES TABLE
 CREATE TABLE IF NOT EXISTS public.categories (
@@ -147,11 +150,11 @@ CREATE INDEX IF NOT EXISTS idx_media_post_id ON public.media(post_id);
 -- 9. MESSAGES TABLE (Contact form submissions)
 CREATE TABLE IF NOT EXISTS public.messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
+  name TEXT NOT NULL CHECK (char_length(trim(name)) BETWEEN 1 AND 120),
+  email TEXT NOT NULL CHECK (char_length(trim(email)) BETWEEN 3 AND 254),
   phone TEXT,
-  subject TEXT,
-  message TEXT NOT NULL,
+  subject TEXT CHECK (subject IS NULL OR char_length(trim(subject)) <= 200),
+  message TEXT NOT NULL CHECK (char_length(trim(message)) BETWEEN 5 AND 5000),
   is_read BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -242,6 +245,31 @@ CREATE TRIGGER trg_post_like_counter
   AFTER INSERT OR DELETE ON public.post_likes
   FOR EACH ROW EXECUTE FUNCTION public.handle_post_like_counter();
 
+-- Trigger to block role self-elevation
+CREATE OR REPLACE FUNCTION public.prevent_role_escalation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_admin() THEN
+    IF NEW.role IS DISTINCT FROM OLD.role THEN
+      RAISE EXCEPTION 'Permission denied: you cannot change your own role.';
+    END IF;
+    IF NEW.id IS DISTINCT FROM OLD.id THEN
+      RAISE EXCEPTION 'Permission denied: you cannot change your user id.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_prevent_role_escalation ON public.profiles;
+CREATE TRIGGER trg_prevent_role_escalation
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_role_escalation();
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
@@ -322,10 +350,11 @@ CREATE POLICY "Users can update their own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
--- Required so the SECURITY DEFINER trigger can insert on signup
+-- Required so the SECURITY DEFINER trigger can insert on signup.
+-- Force role = 'viewer' so callers cannot self-assign admin on INSERT.
 CREATE POLICY "Users can insert their own profile"
   ON public.profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (auth.uid() = id AND role = 'viewer');
 
 -- CATEGORIES POLICIES
 CREATE POLICY "Anyone can view categories"
@@ -378,9 +407,9 @@ CREATE POLICY "Admins can manage media"
   WITH CHECK (public.is_admin());
 
 -- MESSAGES POLICIES
-CREATE POLICY "Anyone can submit a message"
-  ON public.messages FOR INSERT
-  WITH CHECK (TRUE);
+-- INSERT is intentionally NOT granted to anon or authenticated via RLS.
+-- The contact form server action uses the service-role client, which bypasses RLS.
+-- This prevents direct API spam via the public anon key.
 
 CREATE POLICY "Admins can view and manage messages"
   ON public.messages FOR ALL
@@ -388,9 +417,10 @@ CREATE POLICY "Admins can view and manage messages"
   WITH CHECK (public.is_admin());
 
 -- POST LIKES POLICIES
-CREATE POLICY "Anyone can view post likes"
+-- SELECT restricted to the row owner and admins to prevent like-attribution exposure.
+CREATE POLICY "Users can view their own likes"
   ON public.post_likes FOR SELECT
-  USING (TRUE);
+  USING (auth.uid() = user_id OR public.is_admin());
 
 CREATE POLICY "Authenticated users can like posts"
   ON public.post_likes FOR INSERT
@@ -412,7 +442,8 @@ CREATE POLICY "Public can view approved comments or authors their own"
 CREATE POLICY "Authenticated users can post comments"
   ON public.comments FOR INSERT
   WITH CHECK (
-    auth.uid() = user_id 
+    auth.uid() = user_id
+    AND status = 'pending'   -- Force moderation; callers cannot bypass with status='approved'
     AND EXISTS (
       SELECT 1 FROM public.posts 
       WHERE id = post_id AND status = 'published'

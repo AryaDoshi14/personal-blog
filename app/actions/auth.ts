@@ -3,16 +3,23 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { checkRateLimit } from '@/lib/supabase/rate-limit';
 
 export async function loginWithEmail(
   _prevState: { error?: string } | null,
   formData: FormData
 ) {
-  const email = formData.get('email') as string;
+  const email = (formData.get('email') as string)?.trim().toLowerCase();
   const password = formData.get('password') as string;
 
   if (!email || !password) {
     return { error: 'Email and password are required.' };
+  }
+
+  // Rate-limit: max 10 login attempts per email per 15 minutes
+  const allowed = await checkRateLimit(`admin-login:${email}`, 10, 900);
+  if (!allowed) {
+    return { error: 'Too many login attempts. Please wait 15 minutes and try again.' };
   }
 
   const supabase = await createServerSupabaseClient();

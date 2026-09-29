@@ -12,9 +12,7 @@ interface LangLayoutProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  return [{ lang: 'gu' }, { lang: 'en' }];
-}
+export const dynamic = 'force-dynamic';
 
 export default async function LangLayout({ children, params }: LangLayoutProps) {
   const { lang } = await params;

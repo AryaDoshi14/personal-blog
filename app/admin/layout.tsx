@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import AdminShell from '@/components/admin/AdminShell';
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Admin Control Panel | શ્રીજી બાબા',
   robots: {

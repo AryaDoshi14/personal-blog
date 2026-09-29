@@ -54,6 +54,8 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
   const [categoryId, setCategoryId] = useState(initialData?.category_id || '');
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
   const [status, setStatus] = useState<'draft' | 'published'>(initialData?.status || 'draft');
+  const [authorNameGu, setAuthorNameGu] = useState(initialData?.author_name_gu || 'સંપાદક');
+  const [authorNameEn, setAuthorNameEn] = useState(initialData?.author_name_en || 'Editor');
 
   // Error & UI State
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -190,6 +192,8 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
       formData.append('category_id', categoryId || '');
       formData.append('tags', tags || '');
       formData.append('status', targetStatus);
+      formData.append('author_name_gu', authorNameGu.trim() || 'સંપાદક');
+      formData.append('author_name_en', authorNameEn.trim());
 
       let result: PostActionResult;
       if (initialData?.id) {
@@ -371,6 +375,7 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
                     onChange={setContentGu}
                     placeholder="અહીં ગુજરાતીમાં લેખનું વિગતવાર લખાણ લખો..."
                     minHeight="350px"
+                    postId={initialData?.id}
                   />
                   {fieldErrors.content_gu && (
                     <p className="text-xs text-red-600 mt-1">{fieldErrors.content_gu[0]}</p>
@@ -462,6 +467,7 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
                     onChange={setContentEn}
                     placeholder="Write detailed post content in English..."
                     minHeight="350px"
+                    postId={initialData?.id}
                   />
                 </div>
               </div>
@@ -533,6 +539,36 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
                 className="w-full text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
               />
             </div>
+
+            {/* Author byline */}
+            <div>
+              <label className="block text-xs font-semibold text-maroon-primary mb-1">
+                લેખકનું નામ — ગુજરાતી (Author Name)
+              </label>
+              <input
+                type="text"
+                value={authorNameGu}
+                onChange={(e) => setAuthorNameGu(e.target.value)}
+                placeholder="સંપાદક"
+                className="w-full text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+              />
+              {fieldErrors.author_name_gu && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.author_name_gu[0]}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-maroon-primary mb-1">
+                Author Name (English)
+              </label>
+              <input
+                type="text"
+                value={authorNameEn}
+                onChange={(e) => setAuthorNameEn(e.target.value)}
+                placeholder="Editor"
+                className="w-full text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+              />
+            </div>
           </div>
 
           {/* Cover Image Settings (Requirement 7 & 8) */}
@@ -542,6 +578,7 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
               imageUrl={coverImageUrl}
               altText={coverImageAlt}
               requiredAlt={true}
+              postId={initialData?.id}
               onImageChange={(url, alt) => {
                 setCoverImageUrl(url);
                 setCoverImageAlt(alt);

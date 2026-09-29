@@ -3,10 +3,23 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
-import { Calendar, Tag, ArrowLeft, Share2 } from 'lucide-react';
+import { Calendar, Tag, ArrowLeft, User } from 'lucide-react';
+import { headers } from 'next/headers';
 import { OrnamentalDivider } from '@/components/ui/OrnamentalDivider';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { getPostBySlug, getPublishedPosts } from '@/lib/db';
+import { AboutAuthor } from '@/components/blog/AboutAuthor';
+import { LikeButton } from '@/components/blog/LikeButton';
+import { ShareButtons } from '@/components/blog/ShareButtons';
+import { CommentForm } from '@/components/blog/CommentForm';
+import { CommentList } from '@/components/blog/CommentList';
+import {
+  getPostBySlug,
+  getPublishedPosts,
+  getSiteSettings,
+  getApprovedComments,
+} from '@/lib/db';
+import { getUserLikedPost } from '@/app/actions/likes';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { Language } from '@/types';
 
 interface PostDetailPageProps {
@@ -18,11 +31,9 @@ interface PostDetailPageProps {
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const resolvedParams = await params;
-  console.log('[DEBUG PostDetailPage] resolvedParams:', resolvedParams);
   const { lang, slug } = resolvedParams;
 
   if (lang !== 'gu' && lang !== 'en') {
-    console.log('[DEBUG PostDetailPage] Invalid lang:', lang);
     notFound();
   }
 
@@ -30,25 +41,44 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const isGu = validLang === 'gu';
 
   const post = await getPostBySlug(slug);
-  console.log('[DEBUG PostDetailPage] post found:', Boolean(post), 'slug:', slug);
   if (!post) {
-    console.log('[DEBUG PostDetailPage] notFound() triggered because post is null for slug:', slug);
     notFound();
   }
 
-  // Graceful fallback to Gujarati if English content is absent
   const title = isGu ? post.title_gu : post.title_en || post.title_gu;
   const rawContent = isGu
     ? post.content_gu
     : post.content_en || post.content_gu;
   const isFallback = !isGu && !post.content_en;
-
-  // Sanitize rendered rich text for security
   const sanitizedContent = DOMPurify.sanitize(rawContent);
 
-  // Fetch related posts (excluding current post)
-  const allPosts = await getPublishedPosts({ limit: 4 });
+  const authorName = isGu
+    ? post.author_name_gu
+    : post.author_name_en || post.author_name_gu;
+
+  const [allPosts, settings, comments, initialLiked] = await Promise.all([
+    getPublishedPosts({ limit: 4 }),
+    getSiteSettings(),
+    getApprovedComments(post.id),
+    getUserLikedPost(post.id),
+  ]);
   const relatedPosts = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
+
+  const supabase = await createServerSupabaseClient();
+  let isLoggedIn = false;
+  if (supabase) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    isLoggedIn = Boolean(user);
+  }
+
+  const headerList = await headers();
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || '';
+  const proto = headerList.get('x-forwarded-proto') || 'https';
+  const shareUrl = host
+    ? `${proto}://${host}/${lang}/blog/${slug}`
+    : `/${lang}/blog/${slug}`;
 
   const formattedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString(isGu ? 'gu-IN' : 'en-US', {
@@ -61,7 +91,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   return (
     <article className="py-10 sm:py-16 bg-[#FAF6F0] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Link */}
         <div className="mb-6">
           <Link
             href={`/${lang}/blog`}
@@ -72,7 +101,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </Link>
         </div>
 
-        {/* Header Information */}
         <header className="text-center mb-8">
           {post.category && (
             <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#501518] text-white font-serif-gu tracking-wide mb-3">
@@ -84,7 +112,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             {title}
           </h1>
 
-          <div className="flex items-center justify-center gap-4 text-xs sm:text-sm text-[#614D43] font-serif-gu">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-[#614D43] font-serif-gu">
+            {authorName && (
+              <span className="flex items-center gap-1.5">
+                <User className="w-4 h-4 text-[#C59B4B]" />
+                {authorName}
+              </span>
+            )}
             {formattedDate && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-[#C59B4B]" />
@@ -96,14 +130,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           <OrnamentalDivider className="my-3" />
         </header>
 
-        {/* Notice for English fallback */}
         {isFallback && (
           <div className="mb-6 p-4 rounded-xl bg-[#F4EDE2] border border-[#C59B4B]/50 text-xs sm:text-sm text-[#501518] font-serif-gu text-center">
             Note: English translation is being prepared. Displaying original Gujarati devotional text.
           </div>
         )}
 
-        {/* Cover Image */}
         {post.cover_image_url && (
           <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-md border border-[#E8DFD3] mb-10 bg-[#F4EDE2]">
             <Image
@@ -117,7 +149,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
         )}
 
-        {/* Rich Article Content */}
         <div
           className="prose prose-stone lg:prose-lg max-w-none font-serif-gu leading-relaxed text-[#2C1A14]
             prose-headings:text-[#501518] prose-headings:font-bold prose-headings:tracking-tight
@@ -130,7 +161,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
 
-        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="mt-10 pt-6 border-t border-[#E8DFD3] flex flex-wrap items-center gap-2">
             <Tag className="w-4 h-4 text-[#C59B4B]" />
@@ -145,7 +175,33 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
         )}
 
-        {/* Devotional Ending Blessing */}
+        {/* Likes & Share */}
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <LikeButton
+            postId={post.id}
+            initialCount={post.likes_count || 0}
+            initialLiked={initialLiked}
+            isLoggedIn={isLoggedIn}
+            lang={validLang}
+          />
+          <ShareButtons title={title} url={shareUrl} lang={validLang} />
+        </div>
+
+        {/* About the Author */}
+        <div className="mt-10">
+          <AboutAuthor settings={settings} lang={validLang} />
+        </div>
+
+        {/* Comments */}
+        <section className="mt-12 pt-8 border-t border-[#E8DFD3] space-y-6">
+          <h2 className="text-xl font-bold text-[#501518] font-serif-gu">
+            {isGu ? 'ટિપ્પણીઓ' : 'Comments'}{' '}
+            <span className="text-sm font-normal text-[#614D43]">({comments.length})</span>
+          </h2>
+          <CommentList comments={comments} lang={validLang} />
+          <CommentForm postId={post.id} lang={validLang} isLoggedIn={isLoggedIn} />
+        </section>
+
         <div className="my-12 p-6 rounded-2xl bg-gradient-to-r from-[#FAF6F0] via-[#F4EDE2] to-[#FAF6F0] border border-[#C59B4B]/40 text-center shadow-xs">
           <p className="text-lg font-serif-gu font-semibold text-[#501518] tracking-wider">
             || શ્રી કૃષ્ણ શરણં મમ: ||
@@ -157,7 +213,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </p>
         </div>
 
-        {/* Related Posts */}
         {relatedPosts.length > 0 && (
           <div className="mt-16 pt-10 border-t border-[#E8DFD3]">
             <h3 className="text-xl sm:text-2xl font-bold text-[#501518] font-serif-gu mb-6 text-center">

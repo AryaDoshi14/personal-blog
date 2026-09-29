@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Loader2, AlertCircle, CheckCircle, Sparkles, Building, Phone, Share2, Shield } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Sparkles, Building, Phone, Share2, Shield, User } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { updateSiteSettings, type SettingsActionResult } from '@/app/actions/settings';
 import ImageUploader from './ImageUploader';
@@ -304,6 +304,79 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
               requiredAlt={false}
               onImageChange={(url) => handleChange('tradition_image_url', url)}
               onImageRemove={() => handleChange('tradition_image_url', '')}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section: About the Author */}
+      <div className="bg-cream-surface/70 rounded-2xl border border-gold-primary/30 p-6 shadow-xs space-y-4">
+        <div className="flex items-center gap-2.5 border-b border-gold-primary/20 pb-3 text-maroon-primary">
+          <User className="w-5 h-5 text-gold-primary" />
+          <h2 className="font-serif font-bold text-base">લેખક વિશે (About the Author)</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-maroon-primary mb-1">
+              લેખકનું નામ (Author Name - Gujarati) <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.author_name_gu}
+              onChange={(e) => handleChange('author_name_gu', e.target.value)}
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+            />
+            {fieldErrors.author_name_gu && (
+              <p className="text-xs text-red-600 mt-1">{fieldErrors.author_name_gu[0]}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-maroon-primary mb-1">
+              Author Name (English)
+            </label>
+            <input
+              type="text"
+              value={formData.author_name_en}
+              onChange={(e) => handleChange('author_name_en', e.target.value)}
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-maroon-primary mb-1">
+              લેખક પરિચય (Author Bio - Gujarati)
+            </label>
+            <textarea
+              rows={3}
+              value={formData.author_bio_gu}
+              onChange={(e) => handleChange('author_bio_gu', e.target.value)}
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-maroon-primary mb-1">
+              Author Bio (English)
+            </label>
+            <textarea
+              rows={3}
+              value={formData.author_bio_en}
+              onChange={(e) => handleChange('author_bio_en', e.target.value)}
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <ImageUploader
+              label="લેખકનો ફોટો (Author Photo)"
+              sublabel="JPG, PNG or WebP up to 5MB (portrait works best)"
+              imageUrl={formData.author_photo_url}
+              altText={formData.author_name_en || formData.author_name_gu || 'Author'}
+              requiredAlt={false}
+              onImageChange={(url) => handleChange('author_photo_url', url)}
+              onImageRemove={() => handleChange('author_photo_url', '')}
             />
           </div>
         </div>

@@ -55,13 +55,13 @@ function GuestLinks({ lang, isGu }: { lang: Language; isGu: boolean }) {
         href={`/${lang}/auth/login`}
         className="px-3 py-1.5 rounded-lg text-sm font-serif-gu font-medium text-[#501518] hover:text-[#C59B4B] transition-colors border border-transparent hover:border-[#C59B4B]/40"
       >
-        {isGu ? 'પ્રવેશ' : 'Login'}
+        {isGu ? 'લૉગિન' : 'Login'}
       </Link>
       <Link
         href={`/${lang}/auth/signup`}
         className="px-3 py-1.5 rounded-lg text-sm font-serif-gu font-semibold bg-[#501518] text-white hover:bg-[#6B1D23] transition-colors shadow-xs"
       >
-        {isGu ? 'નોંધણી' : 'Sign Up'}
+        {isGu ? 'સાઇન અપ' : 'Sign Up'}
       </Link>
     </div>
   );

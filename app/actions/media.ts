@@ -1,6 +1,7 @@
 'use server';
 
 import { requireAdmin } from '@/lib/supabase/admin-guard';
+import { MEDIA_BUCKET } from '@/lib/media-paths';
 
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
@@ -16,6 +17,7 @@ export async function uploadMedia(formData: FormData): Promise<{
   success: boolean;
   url?: string;
   id?: string;
+  storage_path?: string;
   alt_text?: string;
   file_name?: string;
   error?: string;
@@ -27,6 +29,7 @@ export async function uploadMedia(formData: FormData): Promise<{
 
   const file = formData.get('file') as File | null;
   const altText = (formData.get('alt_text') as string | null)?.trim() || '';
+  const postId = (formData.get('post_id') as string | null)?.trim() || null;
 
   if (!file || !(file instanceof File) || file.size === 0) {
     return { success: false, error: 'No image file provided.' };
@@ -54,20 +57,25 @@ export async function uploadMedia(formData: FormData): Promise<{
   }
 
   try {
-    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
+    const fileExt =
+      file.type === 'image/webp'
+        ? 'webp'
+        : file.type === 'image/svg+xml'
+          ? 'svg'
+          : file.name.split('.').pop()?.toLowerCase() || 'webp';
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
     const sanitizedName = file.name
       .replace(/\.[^/.]+$/, '')
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, '-');
+    // Object key only — never store the public URL here
     const storagePath = `uploads/${timestamp}-${sanitizedName}-${randomStr}.${fileExt}`;
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Upload to 'blog-media' bucket using session client
     const { error: uploadError } = await supabase.storage
-      .from('blog-media')
+      .from(MEDIA_BUCKET)
       .upload(storagePath, buffer, {
         contentType: file.type,
         upsert: false,
@@ -78,23 +86,27 @@ export async function uploadMedia(formData: FormData): Promise<{
       return { success: false, error: uploadError.message };
     }
 
-    // Get public URL
     const { data: publicUrlData } = supabase.storage
-      .from('blog-media')
+      .from(MEDIA_BUCKET)
       .getPublicUrl(storagePath);
 
     const publicUrl = publicUrlData.publicUrl;
 
-    // Record in media table
+    const insertRow: Record<string, unknown> = {
+      file_name: file.name,
+      file_path: publicUrl,
+      storage_path: storagePath,
+      mime_type: file.type,
+      size_bytes: file.size,
+      alt_text: altText,
+    };
+    if (postId) {
+      insertRow.post_id = postId;
+    }
+
     const { data: mediaRow, error: dbError } = await supabase
       .from('media')
-      .insert({
-        file_name: file.name,
-        file_path: publicUrl,
-        mime_type: file.type,
-        size_bytes: file.size,
-        alt_text: altText,
-      })
+      .insert(insertRow)
       .select('id')
       .single();
 
@@ -106,6 +118,7 @@ export async function uploadMedia(formData: FormData): Promise<{
       success: true,
       url: publicUrl,
       id: mediaRow?.id,
+      storage_path: storagePath,
       alt_text: altText,
       file_name: file.name,
     };

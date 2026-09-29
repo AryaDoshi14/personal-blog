@@ -60,6 +60,16 @@ export const postFormSchema = z.object({
     .or(z.literal(''))
     .transform((v) => (v ? v.split(',').map((t) => t.trim()).filter(Boolean) : [])),
   status: z.enum(['draft', 'published']),
+  author_name_gu: z
+    .string()
+    .min(1, 'Author name (Gujarati) is required')
+    .max(200, 'Author name too long'),
+  author_name_en: z
+    .string()
+    .max(200, 'Author name too long')
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || null),
 });
 
 // Cover image alt text is required when a cover image is set

@@ -9,6 +9,7 @@ import {
   Sparkles,
   Settings,
   Mail,
+  MessageSquare,
   ExternalLink,
   LogOut,
   X,
@@ -41,6 +42,13 @@ const NAV_ITEMS = [
     labelGu: 'નિત્ય સ્તુતિઓ',
     labelEn: 'Sacred Prayers',
     icon: Sparkles,
+  },
+  {
+    href: '/admin/comments',
+    exact: false,
+    labelGu: 'ટિપ્પણીઓ',
+    labelEn: 'Comments',
+    icon: MessageSquare,
   },
   {
     href: '/admin/settings',

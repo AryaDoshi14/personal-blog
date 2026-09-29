@@ -5,7 +5,7 @@ import {
   DEFAULT_PRAYERS,
   DEFAULT_SITE_SETTINGS,
 } from '@/lib/data/defaults';
-import { Category, ContactMessage, Post, Prayer, SiteSettings } from '@/types';
+import { Category, Comment, ContactMessage, Post, Prayer, SiteSettings } from '@/types';
 
 // ==============================================================================
 // SITE SETTINGS
@@ -45,6 +45,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       tradition_text_gu: settingsMap['tradition_text']?.gu || DEFAULT_SITE_SETTINGS.tradition_text_gu,
       tradition_text_en: settingsMap['tradition_text']?.en || DEFAULT_SITE_SETTINGS.tradition_text_en,
       tradition_image_url: settingsMap['tradition_image_url']?.gu || DEFAULT_SITE_SETTINGS.tradition_image_url,
+      author_photo_url: settingsMap['author_photo_url']?.gu || DEFAULT_SITE_SETTINGS.author_photo_url,
+      author_name_gu: settingsMap['author_name']?.gu || DEFAULT_SITE_SETTINGS.author_name_gu,
+      author_name_en: settingsMap['author_name']?.en || DEFAULT_SITE_SETTINGS.author_name_en,
+      author_bio_gu: settingsMap['author_bio']?.gu || DEFAULT_SITE_SETTINGS.author_bio_gu,
+      author_bio_en: settingsMap['author_bio']?.en || DEFAULT_SITE_SETTINGS.author_bio_en,
       contact_email: settingsMap['contact_email']?.gu || DEFAULT_SITE_SETTINGS.contact_email,
       contact_phone: settingsMap['contact_phone']?.gu || DEFAULT_SITE_SETTINGS.contact_phone,
       social_facebook: settingsMap['social_facebook']?.gu || DEFAULT_SITE_SETTINGS.social_facebook,
@@ -132,12 +137,19 @@ export async function getPrayerBySlug(slug: string): Promise<Prayer | null> {
 // ==============================================================================
 // POSTS / BLOGS
 // ==============================================================================
+function escapeIlike(term: string): string {
+  return term.replace(/[%_\\]/g, '\\$&');
+}
+
 export async function getPublishedPosts(options?: {
   categoryId?: string;
   limit?: number;
+  search?: string;
 }): Promise<Post[]> {
   try {
     const supabase = await createServerSupabaseClient();
+    const searchTerm = options?.search?.trim();
+
     if (supabase) {
       let query = supabase
         .from('posts')
@@ -149,13 +161,23 @@ export async function getPublishedPosts(options?: {
         query = query.eq('category_id', options.categoryId);
       }
 
+      if (searchTerm) {
+        const q = escapeIlike(searchTerm);
+        query = query.or(
+          `title_gu.ilike.%${q}%,title_en.ilike.%${q}%,author_name_gu.ilike.%${q}%,author_name_en.ilike.%${q}%`
+        );
+      }
+
       if (options?.limit) {
         query = query.limit(options.limit);
       }
 
       const { data, error } = await query;
-      if (!error && data && data.length > 0) {
-        return data as Post[];
+      if (!error && data) {
+        // Preserve defaults fallback only when DB is empty and no search was applied
+        if (searchTerm || data.length > 0) {
+          return data as Post[];
+        }
       }
     }
 
@@ -163,6 +185,16 @@ export async function getPublishedPosts(options?: {
     let posts = [...DEFAULT_POSTS];
     if (options?.categoryId) {
       posts = posts.filter((p) => p.category_id === options.categoryId);
+    }
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      posts = posts.filter(
+        (p) =>
+          p.title_gu.toLowerCase().includes(q) ||
+          (p.title_en || '').toLowerCase().includes(q) ||
+          p.author_name_gu.toLowerCase().includes(q) ||
+          (p.author_name_en || '').toLowerCase().includes(q)
+      );
     }
     if (options?.limit) {
       posts = posts.slice(0, options.limit);
@@ -233,5 +265,48 @@ export async function submitContactMessage(message: {
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error';
     return { success: false, error: errorMsg };
+  }
+}
+
+// ==============================================================================
+// COMMENTS
+// ==============================================================================
+export async function getApprovedComments(postId: string): Promise<Comment[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*, user:profiles(id, role, email, full_name, avatar_url, created_at, updated_at)')
+      .eq('post_id', postId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: true });
+
+    if (error || !data) return [];
+    return data as Comment[];
+  } catch (err) {
+    console.error('Error in getApprovedComments:', err);
+    return [];
+  }
+}
+
+export async function getAllCommentsForAdmin(): Promise<Comment[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('comments')
+      .select(
+        '*, user:profiles(id, role, email, full_name, avatar_url, created_at, updated_at), post:posts(id, slug, title_gu, title_en)'
+      )
+      .order('created_at', { ascending: false });
+
+    if (error || !data) return [];
+    return data as Comment[];
+  } catch (err) {
+    console.error('Error in getAllCommentsForAdmin:', err);
+    return [];
   }
 }

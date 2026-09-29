@@ -71,6 +71,11 @@ export interface SiteSettings {
   tradition_text_gu: string;
   tradition_text_en: string;
   tradition_image_url: string;
+  author_photo_url: string;
+  author_name_gu: string;
+  author_name_en: string;
+  author_bio_gu: string;
+  author_bio_en: string;
   contact_email: string;
   contact_phone: string;
   social_facebook: string;

@@ -153,7 +153,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, userDisp
                   style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif', fontSize: '16px' }}
                 >
                   <LogIn className="w-4 h-4 text-[#C59B4B]" />
-                  {isGu ? 'પ્રવેશ' : 'Login'}
+                  {isGu ? 'લૉગિન' : 'Login'}
                 </Link>
                 <Link
                   href={`/${lang}/auth/signup`}
@@ -162,7 +162,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, userDisp
                   style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif', fontSize: '16px' }}
                 >
                   <UserPlus className="w-4 h-4" />
-                  {isGu ? 'નોંધણી' : 'Sign Up'}
+                  {isGu ? 'સાઇન અપ' : 'Sign Up'}
                 </Link>
               </>
             )}

@@ -266,6 +266,10 @@ CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
+CREATE POLICY "Anyone can view profiles for display"
+  ON public.profiles FOR SELECT
+  USING (TRUE);
+
 CREATE POLICY "Admins can update profiles"
   ON public.profiles FOR UPDATE
   USING (public.is_admin());

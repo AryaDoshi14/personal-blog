@@ -2,17 +2,22 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { BlogListClient } from '@/components/blog/BlogListClient';
-import { getCategories, getPublishedPosts } from '@/lib/db';
+import { AboutAuthor } from '@/components/blog/AboutAuthor';
+import { getCategories, getPublishedPosts, getSiteSettings } from '@/lib/db';
 import { Language } from '@/types';
 
 interface BlogPageProps {
   params: Promise<{
     lang: string;
   }>;
+  searchParams: Promise<{
+    q?: string;
+  }>;
 }
 
-export default async function BlogPage({ params }: BlogPageProps) {
+export default async function BlogPage({ params, searchParams }: BlogPageProps) {
   const { lang } = await params;
+  const { q } = await searchParams;
 
   if (lang !== 'gu' && lang !== 'en') {
     notFound();
@@ -20,10 +25,12 @@ export default async function BlogPage({ params }: BlogPageProps) {
 
   const validLang = lang as Language;
   const isGu = validLang === 'gu';
+  const search = (q || '').trim();
 
-  const [posts, categories] = await Promise.all([
-    getPublishedPosts(),
+  const [posts, categories, settings] = await Promise.all([
+    getPublishedPosts({ search: search || undefined }),
     getCategories(),
+    getSiteSettings(),
   ]);
 
   return (
@@ -38,7 +45,16 @@ export default async function BlogPage({ params }: BlogPageProps) {
           }
         />
 
-        <BlogListClient posts={posts} categories={categories} lang={validLang} />
+        <BlogListClient
+          posts={posts}
+          categories={categories}
+          lang={validLang}
+          initialSearch={search}
+        />
+
+        <div className="mt-16 max-w-2xl mx-auto">
+          <AboutAuthor settings={settings} lang={validLang} compact />
+        </div>
       </div>
     </div>
   );

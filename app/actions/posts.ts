@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
 import { sanitizeHtml } from '@/lib/sanitize';
-import { postFormSchemaWithAltCheck, type PostFormData } from '@/lib/validations/posts';
+import { postFormSchemaWithAltCheck } from '@/lib/validations/posts';
+import {
+  extractImageSrcs,
+  MEDIA_BUCKET,
+  toStoragePath,
+} from '@/lib/media-paths';
 
 export type PostActionResult = {
   success: boolean;
@@ -47,6 +52,8 @@ export async function createPost(formData: FormData): Promise<PostActionResult> 
     category_id: formData.get('category_id'),
     tags: formData.get('tags'),
     status: formData.get('status') || 'draft',
+    author_name_gu: formData.get('author_name_gu') || 'સંપાદક',
+    author_name_en: formData.get('author_name_en'),
   };
 
   // Validate with Zod
@@ -100,6 +107,8 @@ export async function createPost(formData: FormData): Promise<PostActionResult> 
       tags: data.tags,
       status: data.status,
       published_at: publishedAt,
+      author_name_gu: data.author_name_gu,
+      author_name_en: data.author_name_en,
     })
     .select('id, slug')
     .single();
@@ -142,6 +151,8 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
     category_id: formData.get('category_id'),
     tags: formData.get('tags'),
     status: formData.get('status') || 'draft',
+    author_name_gu: formData.get('author_name_gu') || 'સંપાદક',
+    author_name_en: formData.get('author_name_en'),
   };
 
   const validationResult = postFormSchemaWithAltCheck.safeParse(rawData);
@@ -203,6 +214,8 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
       tags: data.tags,
       status: data.status,
       published_at: publishedAt,
+      author_name_gu: data.author_name_gu,
+      author_name_en: data.author_name_en,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id);
@@ -239,9 +252,60 @@ export async function deletePost(id: string): Promise<{ success: boolean; error?
 
   const { data: post } = await supabase
     .from('posts')
-    .select('slug')
+    .select('slug, cover_image_url, content_gu, content_en')
     .eq('id', id)
     .single();
+
+  // Collect storage object keys for cleanup before deleting the post
+  const pathSet = new Set<string>();
+
+  const { data: linkedMedia } = await supabase
+    .from('media')
+    .select('id, storage_path, file_path')
+    .eq('post_id', id);
+
+  for (const row of linkedMedia || []) {
+    const key = row.storage_path || toStoragePath(row.file_path);
+    if (key) pathSet.add(key);
+  }
+
+  if (post?.cover_image_url) {
+    const coverKey = toStoragePath(post.cover_image_url);
+    if (coverKey) pathSet.add(coverKey);
+
+    const { data: coverMedia } = await supabase
+      .from('media')
+      .select('id, storage_path, file_path')
+      .eq('file_path', post.cover_image_url);
+    for (const row of coverMedia || []) {
+      const key = row.storage_path || toStoragePath(row.file_path);
+      if (key) pathSet.add(key);
+    }
+  }
+
+  for (const src of [
+    ...extractImageSrcs(post?.content_gu),
+    ...extractImageSrcs(post?.content_en),
+  ]) {
+    const key = toStoragePath(src);
+    if (key) pathSet.add(key);
+  }
+
+  const paths = Array.from(pathSet);
+  if (paths.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from(MEDIA_BUCKET)
+      .remove(paths);
+    if (storageError) {
+      console.warn('Storage cleanup warning on deletePost:', storageError.message);
+    }
+
+    // Remove media rows linked by post_id or matching collected public URLs
+    await supabase.from('media').delete().eq('post_id', id);
+    if (post?.cover_image_url) {
+      await supabase.from('media').delete().eq('file_path', post.cover_image_url);
+    }
+  }
 
   const { error: deleteError } = await supabase.from('posts').delete().eq('id', id);
   if (deleteError) {

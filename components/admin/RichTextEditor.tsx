@@ -26,12 +26,14 @@ import {
   Upload,
 } from 'lucide-react';
 import { uploadMedia } from '@/app/actions/media';
+import { compressImageToWebP } from '@/lib/image-compress';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: string;
+  postId?: string | null;
 }
 
 export default function RichTextEditor({
@@ -39,6 +41,7 @@ export default function RichTextEditor({
   onChange,
   placeholder = 'લખવાનું શરૂ કરો...',
   minHeight = '300px',
+  postId,
 }: RichTextEditorProps) {
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
@@ -126,9 +129,11 @@ export default function RichTextEditor({
     if (imageFile) {
       setIsUploading(true);
       try {
+        const compressed = await compressImageToWebP(imageFile);
         const formData = new FormData();
-        formData.append('file', imageFile);
+        formData.append('file', compressed);
         formData.append('alt_text', imageAlt.trim());
+        if (postId) formData.append('post_id', postId);
         const res = await uploadMedia(formData);
         if (!res.success || !res.url) {
           setImageError(res.error || 'Failed to upload image');

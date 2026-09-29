@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Upload, X, Check, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2 } from 'lucide-react';
 import { uploadMedia } from '@/app/actions/media';
+import { compressImageToWebP } from '@/lib/image-compress';
 
 interface ImageUploaderProps {
   label: string;
@@ -10,6 +11,7 @@ interface ImageUploaderProps {
   imageUrl?: string | null;
   altText?: string | null;
   requiredAlt?: boolean;
+  postId?: string | null;
   onImageChange: (url: string, altText: string) => void;
   onImageRemove?: () => void;
   error?: string;
@@ -17,10 +19,11 @@ interface ImageUploaderProps {
 
 export default function ImageUploader({
   label,
-  sublabel = 'JPG, PNG, WebP or SVG up to 5MB',
+  sublabel = 'JPG, PNG, WebP or SVG up to 5MB (auto-compressed to WebP)',
   imageUrl,
   altText = '',
   requiredAlt = true,
+  postId,
   onImageChange,
   onImageRemove,
   error,
@@ -47,9 +50,11 @@ export default function ImageUploader({
 
     setIsUploading(true);
     try {
+      const compressed = await compressImageToWebP(file);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressed);
       formData.append('alt_text', effectiveAlt);
+      if (postId) formData.append('post_id', postId);
 
       const result = await uploadMedia(formData);
       if (!result.success || !result.url) {

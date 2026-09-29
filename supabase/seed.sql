@@ -237,6 +237,24 @@ VALUES
     'Architectural heritage image for tradition section.'
   ),
   (
+    'author_photo_url',
+    '',
+    '',
+    'Global author portrait shown on blog posts.'
+  ),
+  (
+    'author_name',
+    'સંપાદક',
+    'Editor',
+    'Display name for the site author.'
+  ),
+  (
+    'author_bio',
+    'શ્રીજી બાબાની કૃપા અને પુષ્ટિમાર્ગીય ભાવના વહેંચવાનો વિનમ્ર પ્રયાસ.',
+    'A humble effort to share the grace of Shreeji Baba and the spirit of Pushtimarg.',
+    'Short bilingual bio for the About the Author block.'
+  ),
+  (
     'contact_email',
     'example@gmail.com',
     'example@gmail.com',

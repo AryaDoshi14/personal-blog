@@ -59,6 +59,7 @@ export interface SiteSettings {
   site_name_en: string;
   site_tagline_gu: string;
   site_tagline_en: string;
+  header_logo_url?: string;
   hero_heading_gu: string;
   hero_heading_en: string;
   hero_intro_gu: string;

@@ -29,7 +29,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FAF6F0]">
-      <Header lang={validLang} siteName={siteName} />
+      <Header lang={validLang} siteName={siteName} logoUrl={settings.header_logo_url} />
       <main className="flex-1">{children}</main>
       <Footer settings={settings} lang={validLang} />
     </div>

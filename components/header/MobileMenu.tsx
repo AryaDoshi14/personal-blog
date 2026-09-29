@@ -11,11 +11,12 @@ import { publicSignOut } from '@/app/actions/public-auth';
 interface MobileMenuProps {
   lang: Language;
   siteName: string;
+  logoUrl?: string;
   /** Pass the display name of a logged-in non-admin viewer. Null/undefined = guest. */
   userDisplayName?: string | null;
 }
 
-export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, userDisplayName }) => {
+export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, logoUrl, userDisplayName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const isGu = lang === 'gu';
 
@@ -86,7 +87,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, userDisp
           {/* ── Header ── */}
           <div className="flex items-center justify-between px-5 py-4 border-b-2 border-[#E8DFD3] bg-white">
             <div className="flex items-center gap-2.5">
-              <Image src="/images/defaults/logo-mandala.svg" alt="Logo" width={32} height={32} />
+              <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0">
+                <Image src={logoUrl || '/images/defaults/logo-mandala.svg'} alt="Logo" fill className="object-contain" />
+              </div>
               <span className="font-bold text-[#501518] text-lg" style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif' }}>
                 {siteName}
               </span>

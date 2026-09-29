@@ -97,11 +97,26 @@ export async function publicSignIn(
     return { error: 'Service is unavailable. Please try again later.' };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     // Generic message to avoid leaking account existence
     return { error: 'Invalid email or password.' };
+  }
+
+  // Check if the signed-in user is an admin
+  if (signInData?.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', signInData.user.id)
+      .single();
+
+    if (profile?.role === 'admin') {
+      // Don't redirect — let the client show the admin/normal-page choice popup
+      revalidatePath(`/${lang}`, 'layout');
+      return { isAdmin: true, lang };
+    }
   }
 
   revalidatePath(`/${lang}`, 'layout');
@@ -119,6 +134,64 @@ export async function publicSignOut(lang: string = 'gu') {
   }
   revalidatePath(`/${safeLangValue}`, 'layout');
   redirect(`/${safeLangValue}`);
+}
+
+// ---------------------------------------------------------------------------
+// PASSWORD RESET – REQUEST EMAIL
+// ---------------------------------------------------------------------------
+export async function requestPasswordReset(
+  _prevState: { error?: string; success?: boolean } | null,
+  formData: FormData
+) {
+  const email = (formData.get('email') as string)?.trim().toLowerCase();
+  const lang = safeLang(formData.get('lang') as string);
+
+  if (!email) return { error: 'Email is required.' };
+
+  // Rate-limit: max 3 reset requests per email per hour
+  const allowed = await checkRateLimit(`reset:${email}`, 3, 3600);
+  if (!allowed) {
+    return { error: 'Too many reset attempts. Please wait an hour and try again.' };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { error: 'Service is unavailable. Please try again later.' };
+
+  const redirectUrl =
+    process.env.NEXT_PUBLIC_SITE_URL
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/auth/reset-password`
+      : `http://localhost:3000/${lang}/auth/reset-password`;
+
+  // Supabase silently succeeds even for unknown emails (security best practice)
+  await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
+
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// PASSWORD RESET – SET NEW PASSWORD
+// ---------------------------------------------------------------------------
+export async function updatePassword(
+  _prevState: { error?: string; success?: boolean } | null,
+  formData: FormData
+) {
+  const password = formData.get('password') as string;
+  const confirm = formData.get('confirm_password') as string;
+
+  if (!password || password.length < 8) {
+    return { error: 'Password must be at least 8 characters.' };
+  }
+  if (password !== confirm) {
+    return { error: 'Passwords do not match.' };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { error: 'Service is unavailable.' };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  return { success: true };
 }
 
 // ---------------------------------------------------------------------------

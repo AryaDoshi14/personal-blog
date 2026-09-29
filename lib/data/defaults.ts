@@ -5,6 +5,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   site_name_en: 'Shreeji Baba Ni Krupa',
   site_tagline_gu: 'શ્રીજી બાવાની કૃપા સર્વે પર બની રહે.',
   site_tagline_en: 'May the grace of Shreeji Baba be upon everyone.',
+  header_logo_url: '/images/defaults/logo-mandala.svg',
   hero_heading_gu: 'જય શ્રી કૃષ્ણ',
   hero_heading_en: 'Jai Shree Krishna',
   hero_intro_gu: 'શ્રીજી બાવાની અપર કૃપાથી આ જીવન ધન્ય છે. આપણા સંસ્કાર, પરંપરા અને ભક્તિની સુગંધ આપ સી સુધી પહોંચે એ જ પ્રયત્ન.',

@@ -10,9 +10,10 @@ import { getCurrentViewer } from '@/lib/supabase/viewer';
 interface HeaderProps {
   lang: Language;
   siteName: string;
+  logoUrl?: string;
 }
 
-export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
+export const Header: React.FC<HeaderProps> = async ({ lang, siteName, logoUrl }) => {
   const navLinks = [
     { href: `/${lang}`, labelGu: 'મુખ્ય પાનું', labelEn: 'Home' },
     { href: `/${lang}/prayers`, labelGu: 'પ્રાર્થનાઓ', labelEn: 'Prayers' },
@@ -28,6 +29,8 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
       ? profile.full_name?.trim() || (lang === 'gu' ? 'ભક્ત' : 'Devotee')
       : null;
 
+  const resolvedLogo = logoUrl || '/images/defaults/logo-mandala.svg';
+
   return (
     <header className="sticky top-0 z-40 w-full bg-[#FAF6F0]/95 backdrop-blur-sm border-b border-[#E8DFD3]/80 transition-shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -36,9 +39,9 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
           href={`/${lang}`}
           className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#C59B4B] rounded-lg p-1"
         >
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 shrink-0 transition-transform duration-300 group-hover:rotate-45">
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full overflow-hidden transition-transform duration-300 group-hover:scale-105">
             <Image
-              src="/images/defaults/logo-mandala.svg"
+              src={resolvedLogo}
               alt="Shreeji Bawa Emblem"
               fill
               className="object-contain"
@@ -70,7 +73,7 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
         </div>
 
         {/* Mobile Navigation Drawer */}
-        <MobileMenu lang={lang} siteName={siteName} userDisplayName={mobileUserName} />
+        <MobileMenu lang={lang} siteName={siteName} userDisplayName={mobileUserName} logoUrl={resolvedLogo} />
       </div>
     </header>
   );

@@ -48,6 +48,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       site_name_en: getReqEn('site_name', DEFAULT_SITE_SETTINGS.site_name_en),
       site_tagline_gu: getReqGu('site_tagline', DEFAULT_SITE_SETTINGS.site_tagline_gu),
       site_tagline_en: getOptEn('site_tagline', DEFAULT_SITE_SETTINGS.site_tagline_en),
+      header_logo_url: getOptGu('header_logo_url', DEFAULT_SITE_SETTINGS.header_logo_url || '/images/defaults/logo-mandala.svg'),
       hero_heading_gu: getReqGu('hero_heading', DEFAULT_SITE_SETTINGS.hero_heading_gu),
       hero_heading_en: getOptEn('hero_heading', DEFAULT_SITE_SETTINGS.hero_heading_en),
       hero_intro_gu: getReqGu('hero_intro', DEFAULT_SITE_SETTINGS.hero_intro_gu),

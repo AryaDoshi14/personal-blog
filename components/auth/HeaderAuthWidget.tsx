@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getCurrentViewer } from '@/lib/supabase/viewer';
 import { Language, Profile } from '@/types';
 import { UserDropdown } from './UserDropdown';
+import { LayoutDashboard } from 'lucide-react';
+
 
 interface HeaderAuthWidgetProps {
   lang: Language;
@@ -12,9 +14,8 @@ interface HeaderAuthWidgetProps {
 /**
  * Server component that reads the current session and renders either:
  * - A "Login / Sign up" link pair (unauthenticated)
+ * - An "Admin Panel" link (admin user)
  * - A user avatar + name dropdown (authenticated viewer)
- *
- * Admin users are handled by /admin; they won't see this widget in that context.
  */
 export async function HeaderAuthWidget({ lang, profile: passedProfile }: HeaderAuthWidgetProps) {
   const isGu = lang === 'gu';
@@ -30,9 +31,17 @@ export async function HeaderAuthWidget({ lang, profile: passedProfile }: HeaderA
     return <GuestLinks lang={lang} isGu={isGu} />;
   }
 
-  // Admins use /admin; don't clutter the public header with their account
+  // Admins get a quick link to the admin panel on desktop
   if (profile.role === 'admin') {
-    return null;
+    return (
+      <Link
+        href="/admin"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-serif-gu font-semibold bg-[#501518] text-white hover:bg-[#6B1D23] focus:outline-none focus:ring-2 focus:ring-[#C59B4B] transition-colors shadow-xs"
+      >
+        <LayoutDashboard className="w-4 h-4" />
+        {isGu ? 'એડ્મિન પેનલ' : 'Admin Panel'}
+      </Link>
+    );
   }
 
   return <UserDropdown lang={lang} profile={profile} />;
@@ -56,3 +65,4 @@ function GuestLinks({ lang, isGu }: { lang: Language; isGu: boolean }) {
     </div>
   );
 }
+

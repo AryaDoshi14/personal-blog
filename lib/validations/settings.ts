@@ -5,6 +5,7 @@ export const siteSettingsSchema = z.object({
   site_name_en: z.string().min(1, 'Required'),
   site_tagline_gu: z.string().min(1, 'Required'),
   site_tagline_en: z.string().optional().or(z.literal('')),
+  header_logo_url: z.string().optional().or(z.literal('')),
   hero_heading_gu: z.string().min(1, 'Required'),
   hero_heading_en: z.string().optional().or(z.literal('')),
   hero_intro_gu: z.string().min(1, 'Required'),

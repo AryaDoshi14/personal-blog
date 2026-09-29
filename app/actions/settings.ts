@@ -21,6 +21,7 @@ export async function updateSiteSettings(formData: FormData): Promise<SettingsAc
     site_name_en: formData.get('site_name_en'),
     site_tagline_gu: formData.get('site_tagline_gu'),
     site_tagline_en: formData.get('site_tagline_en'),
+    header_logo_url: formData.get('header_logo_url'),
     hero_heading_gu: formData.get('hero_heading_gu'),
     hero_heading_en: formData.get('hero_heading_en'),
     hero_intro_gu: formData.get('hero_intro_gu'),
@@ -67,6 +68,7 @@ export async function updateSiteSettings(formData: FormData): Promise<SettingsAc
   const rows = [
     { key: 'site_name', value_gu: data.site_name_gu, value_en: data.site_name_en || data.site_name_gu },
     { key: 'site_tagline', value_gu: data.site_tagline_gu, value_en: data.site_tagline_en || data.site_tagline_gu },
+    { key: 'header_logo_url', value_gu: data.header_logo_url || '', value_en: data.header_logo_url || '' },
     { key: 'hero_heading', value_gu: data.hero_heading_gu, value_en: data.hero_heading_en || data.hero_heading_gu },
     { key: 'hero_intro', value_gu: data.hero_intro_gu, value_en: data.hero_intro_en || data.hero_intro_gu },
     { key: 'hero_sanskrit_line', value_gu: data.hero_sanskrit_line_gu || '', value_en: data.hero_sanskrit_line_en || '' },

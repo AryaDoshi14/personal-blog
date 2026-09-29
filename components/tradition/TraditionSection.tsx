@@ -14,7 +14,7 @@ export const TraditionSection: React.FC<TraditionSectionProps> = ({ settings, la
   const sectionTitle = isGu ? 'અમારી પરંપરા' : 'Our Tradition';
   const topicTitle = isGu ? settings.tradition_title_gu : settings.tradition_title_en;
   const rawText = isGu ? settings.tradition_text_gu : settings.tradition_text_en;
-  const paragraphs = rawText.split('\n\n').filter(Boolean);
+  const paragraphs = (rawText || '').replace(/\\n/g, '\n').split('\n\n').filter(Boolean);
 
   return (
     <section className="py-12 sm:py-16 bg-[#F4EDE2]/40 border-y border-[#E8DFD3]/80">

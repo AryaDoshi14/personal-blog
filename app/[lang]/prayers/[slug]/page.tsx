@@ -76,7 +76,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           </h2>
 
           <div className="text-lg sm:text-xl font-serif-gu leading-loose sm:leading-loose text-[#2C1A14] whitespace-pre-line text-center sm:text-left">
-            {contentGu}
+            {(contentGu || '').replace(/\\n/g, '\n')}
           </div>
         </div>
 
@@ -88,7 +88,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             </h2>
 
             <div className="text-base sm:text-lg leading-relaxed text-[#4A3830] whitespace-pre-line font-serif-gu">
-              {contentEn}
+              {contentEn.replace(/\\n/g, '\n')}
             </div>
           </div>
         )}

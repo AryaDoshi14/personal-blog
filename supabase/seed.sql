@@ -61,8 +61,26 @@ VALUES
     'Description of Lord Krishna''s all-encompassing sweetness.',
     'flute',
     1,
-    'અધરં મધુરં વદનં મધુરં નયનં મધુરં હસિતં મધુરમ્ ।\nહૃદયં મધુરં ગમનં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૧ ॥\n\nવચનં મધુરં ચરિતં મધુરં વસનં મધુરં વલિતં મધુરમ્ ।\nચલિતં મધુરં ભ્રમિતં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૨ ॥\n\nવેણુર્મધુરો રેણુર્મધુરઃ પાણિર્મધુરઃ પાદૌ મધુરૌ ।\nનૃત્યં મધુરં સખ્યં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૩ ॥\n\nગીતં મધુરં પીતં મધુરં ભુક્તં મધુરં સુપ્તં મધુરમ્ ।\nરૂપં મધુરં તિલકં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૪ ॥\n\nશ્રીમદ્ વલ્લભાચાર્ય રચિત આ મધુરાષ્ટકમ શ્રી કૃષ્ણના પ્રત્યેક અંગ, ચરિત્ર અને લીલાની મધુરતાનું પરમ ગુણગાન કરે છે. જ્યારે ભક્ત પ્રેમપૂર્વક આ સ્તુતિ કરે છે, ત્યારે તેનું સમગ્ર જીવન મધુરતાથી ભરાઈ જાય છે.',
-    'Adharam Madhuram Vadanam Madhuram Nayanam Madhuram Hasitam Madhuram |\nHridayam Madhuram Gamanam Madhuram Madhuradhipater Akhilam Madhuram || 1 ||\n\nHis lips are sweet, His face is sweet, His eyes are sweet, His smile is sweet,\nHis loving heart is sweet, His gait is sweet — everything about the Lord of Sweetness is sweet!\n\nComposed by Shrimad Vallabhacharya Mahaprabhuji, this divine hymn celebrates the infinite sweetness of every aspect of Lord Krishna.'
+    'અધરં મધુરં વદનં મધુરં નયનં મધુરં હસિતં મધુરમ્ ।
+હૃદયં મધુરં ગમનં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૧ ॥
+
+વચનં મધુરં ચરિતં મધુરં વસનં મધુરં વલિતં મધુરમ્ ।
+ચલિતં મધુરં ભ્રમિતં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૨ ॥
+
+વેણુર્મધુરો રેણુર્મધુરઃ પાણિર્મધુરઃ પાદૌ મધુરૌ ।
+નૃત્યં મધુરં સખ્યં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૩ ॥
+
+ગીતં મધુરં પીતં મધુરં ભુક્તં મધુરં સુપ્તં મધુરમ્ ।
+રૂપં મધુરં તિલકં મધુરં મધુરાધિપતેરખિલં મધુરમ્ ॥ ૪ ॥
+
+શ્રીમદ્ વલ્લભાચાર્ય રચિત આ મધુરાષ્ટકમ શ્રી કૃષ્ણના પ્રત્યેક અંગ, ચરિત્ર અને લીલાની મધુરતાનું પરમ ગુણગાન કરે છે. જ્યારે ભક્ત પ્રેમપૂર્વક આ સ્તુતિ કરે છે, ત્યારે તેનું સમગ્ર જીવન મધુરતાથી ભરાઈ જાય છે.',
+    'Adharam Madhuram Vadanam Madhuram Nayanam Madhuram Hasitam Madhuram |
+Hridayam Madhuram Gamanam Madhuram Madhuradhipater Akhilam Madhuram || 1 ||
+
+His lips are sweet, His face is sweet, His eyes are sweet, His smile is sweet,
+His loving heart is sweet, His gait is sweet — everything about the Lord of Sweetness is sweet!
+
+Composed by Shrimad Vallabhacharya Mahaprabhuji, this divine hymn celebrates the infinite sweetness of every aspect of Lord Krishna.'
   ),
   (
     'b2222222-2222-2222-2222-222222222222',
@@ -73,8 +91,17 @@ VALUES
     'Sacred prayer for overcoming anxiety and spiritual surrender.',
     'lotus',
     2,
-    'અરે ચેતો મા ગા વ્યથામ્ ।\nશ્રીકૃષ્ણશ્ચરણે મનઃ સદૈવ સુસ્થિરં કુરુ ॥\n\nચિંતા કાપિ ન કાર્તવ્યા યદિ ચેત્ શ્રીપતિર્હૃદિ ।\nજગદીશિતુઃ કૃપાલાવાત્ સર્વં સંસિધ્યતિ ક્ષણાત્ ॥\n\nહે મન! તું વ્યર્થ ચિંતા ન કર. જે શ્રીજી બાવા સમગ્ર જગતના પાલનહાર છે, તે તારું કલ્યાણ કેમ નહીં કરે? શ્રીકૃષ્ણના ચરણારવિંદમાં સંપૂર્ણ સમર્પણ કરવાથી સર્વ ચિંતાઓ ક્ષણમાત્રમાં દૂર થાય છે. આ પવિત્ર પ્રાર્થના ભક્તના હૃદયમાં અડગ શ્રદ્ધા અને શાંતિ સ્થાપિત કરે છે.',
-    'O my mind! Do not worry or despair.\nFix your heart and thoughts steadfastly upon the divine lotus feet of Shree Krishna.\n\nWhen the Lord of the Universe resides in your heart, no anxiety can touch you. By a mere drop of His grace, all obstacles vanish instantly.'
+    'અરે ચેતો મા ગા વ્યથામ્ ।
+શ્રીકૃષ્ણશ્ચરણે મનઃ સદૈવ સુસ્થિરં કુરુ ॥
+
+ચિંતા કાપિ ન કાર્તવ્યા યદિ ચેત્ શ્રીપતિર્હૃદિ ।
+જગદીશિતુઃ કૃપાલાવાત્ સર્વં સંસિધ્યતિ ક્ષણાત્ ॥
+
+હે મન! તું વ્યર્થ ચિંતા ન કર. જે શ્રીજી બાવા સમગ્ર જગતના પાલનહાર છે, તે તારું કલ્યાણ કેમ નહીં કરે? શ્રીકૃષ્ણના ચરણારવિંદમાં સંપૂર્ણ સમર્પણ કરવાથી સર્વ ચિંતાઓ ક્ષણમાત્રમાં દૂર થાય છે. આ પવિત્ર પ્રાર્થના ભક્તના હૃદયમાં અડગ શ્રદ્ધા અને શાંતિ સ્થાપિત કરે છે.',
+    'O my mind! Do not worry or despair.
+Fix your heart and thoughts steadfastly upon the divine lotus feet of Shree Krishna.
+
+When the Lord of the Universe resides in your heart, no anxiety can touch you. By a mere drop of His grace, all obstacles vanish instantly.'
   ),
   (
     'b3333333-3333-3333-3333-333333333333',
@@ -85,8 +112,18 @@ VALUES
     'Hymn in praise of Shri Yamuna Maharani.',
     'peacock',
     3,
-    'નમામિ યમુનામહં સકલ સિદ્ધિ હેતું મુદા\nમુરારી પદ પંકજ સ્ફુરદ મંદ રેણૂત્કટામ્ ।\nતટસ્થ નવ કાનન પ્રકટ મોદ પુષ્પાંબુના\nસુરાસુર સુપૂજિત પ્રભવ શુદ્ધ દંભોમ્ભુજામ્ ॥ ૧ ॥\n\nકલિકલુષ નાશિની સકલ સિદ્ધિ દાત્રી શ્રી યમુના મહારાણી ભક્તોને શ્રીકૃષ્ણના ચરણો સુધી પહોંચાડનાર પરમ કૃપાળુ માતા છે. પુષ્ટિમાર્ગમાં યમુનાજીની કૃપા વગર ભક્તિભાવ પુષ્ટ થતો નથી.',
-    'Namami Yamunam Aham Sakala Siddhi Hetum Muda\nMurari Pada Pankaja Sphurad Amanda Renutkatam |\nTatastha Nava Kanana Prakata Moda Pushpambuna\nSurasura Supujita Prabhava Shuddha Dambhom-bhujam || 1 ||\n\nI joyfully bow to Shri Yamuna Maharani, the source of all divine fulfillment and spiritual accomplishments, who carries the sacred dust of the lotus feet of Lord Krishna.'
+    'નમામિ યમુનામહં સકલ સિદ્ધિ હેતું મુદા
+મુરારી પદ પંકજ સ્ફુરદ મંદ રેણૂત્કટામ્ ।
+તટસ્થ નવ કાનન પ્રકટ મોદ પુષ્પાંબુના
+સુરાસુર સુપૂજિત પ્રભવ શુદ્ધ દંભોમ્ભુજામ્ ॥ ૧ ॥
+
+કલિકલુષ નાશિની સકલ સિદ્ધિ દાત્રી શ્રી યમુના મહારાણી ભક્તોને શ્રીકૃષ્ણના ચરણો સુધી પહોંચાડનાર પરમ કૃપાળુ માતા છે. પુષ્ટિમાર્ગમાં યમુનાજીની કૃપા વગર ભક્તિભાવ પુષ્ટ થતો નથી.',
+    'Namami Yamunam Aham Sakala Siddhi Hetum Muda
+Murari Pada Pankaja Sphurad Amanda Renutkatam |
+Tatastha Nava Kanana Prakata Moda Pushpambuna
+Surasura Supujita Prabhava Shuddha Dambhom-bhujam || 1 ||
+
+I joyfully bow to Shri Yamuna Maharani, the source of all divine fulfillment and spiritual accomplishments, who carries the sacred dust of the lotus feet of Lord Krishna.'
   )
 ON CONFLICT (slug) DO UPDATE SET
   title_gu = EXCLUDED.title_gu,
@@ -245,8 +282,12 @@ VALUES
   ),
   (
     'tradition_text',
-    'વૈષ્ણવ વાણીયા સમાજ વૈષ્ણવ ધાર્મિક પરંપરાથી પ્રેરિત, સેવા, સદાચાર અને સંસ્કારોથી સમૃદ્ધ સમુદાય છે. શ્રી વલ્લભાચાર્ય મહાપ્રભુજી દ્વારા સ્થાપિત પુષ્ટિમાર્ગના અનુયાયી તરીકે અમે શ્રીનાથજીની અનન્ય કૃપાના ઉપલબ્ધ છીએ.\n\nશતાબ્દીઓથી આ સમુદાયે વેપાર, દાન, ભક્તિ અને શિક્ષણના ક્ષેત્રે મહત્વપૂર્ણ યોગદાન આપ્યું છે. આપણા પૂર્વજોએ શ્રદ્ધા અને પરિશ્રમથી જે મૂલ્યો અને પરંપરા સંભાળી છે, તેને આગળની પેઢીઓને પહોંચાડવી એ આપણું કર્તવ્ય છે.',
-    'The Vaishnav Vaniya Samaj is a heritage community guided by Vaishnav principles, devoted seva, righteousness, and cultural values. As followers of Pushtimarg founded by Shri Vallabhacharya Mahaprabhuji, we cherish the eternal grace of Shrinathji.\n\nFor centuries, this community has contributed deeply to commerce, philanthropy, spiritual devotion, and education. Upholding and passing these sacred values to future generations is our lifelong duty.',
+    'વૈષ્ણવ વાણીયા સમાજ વૈષ્ણવ ધાર્મિક પરંપરાથી પ્રેરિત, સેવા, સદાચાર અને સંસ્કારોથી સમૃદ્ધ સમુદાય છે. શ્રી વલ્લભાચાર્ય મહાપ્રભુજી દ્વારા સ્થાપિત પુષ્ટિમાર્ગના અનુયાયી તરીકે અમે શ્રીનાથજીની અનન્ય કૃપાના ઉપલબ્ધ છીએ.
+
+શતાબ્દીઓથી આ સમુદાયે વેપાર, દાન, ભક્તિ અને શિક્ષણના ક્ષેત્રે મહત્વપૂર્ણ યોગદાન આપ્યું છે. આપણા પૂર્વજોએ શ્રદ્ધા અને પરિશ્રમથી જે મૂલ્યો અને પરંપરા સંભાળી છે, તેને આગળની પેઢીઓને પહોંચાડવી એ આપણું કર્તવ્ય છે.',
+    'The Vaishnav Vaniya Samaj is a heritage community guided by Vaishnav principles, devoted seva, righteousness, and cultural values. As followers of Pushtimarg founded by Shri Vallabhacharya Mahaprabhuji, we cherish the eternal grace of Shrinathji.
+
+For centuries, this community has contributed deeply to commerce, philanthropy, spiritual devotion, and education. Upholding and passing these sacred values to future generations is our lifelong duty.',
     'Detailed narrative text for the tradition section.'
   ),
   (

@@ -25,7 +25,7 @@ export default async function TraditionPage({ params }: TraditionPageProps) {
 
   const title = isGu ? settings.tradition_title_gu : settings.tradition_title_en;
   const rawText = isGu ? settings.tradition_text_gu : settings.tradition_text_en;
-  const paragraphs = rawText.split('\n\n').filter(Boolean);
+  const paragraphs = (rawText || '').replace(/\\n/g, '\n').split('\n\n').filter(Boolean);
 
   return (
     <div className="py-12 sm:py-16 bg-[#FAF6F0] min-h-screen">

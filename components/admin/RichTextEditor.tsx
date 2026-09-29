@@ -11,9 +11,6 @@ import HorizontalRule from '@tiptap/extension-horizontal-rule';
 import {
   Bold,
   Italic,
-  Heading1,
-  Heading2,
-  Heading3,
   List,
   ListOrdered,
   Quote,
@@ -23,7 +20,6 @@ import {
   Undo,
   Redo,
   X,
-  Upload,
 } from 'lucide-react';
 import { uploadMedia } from '@/app/actions/media';
 import { compressImageToWebP } from '@/lib/image-compress';

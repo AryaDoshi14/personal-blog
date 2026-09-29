@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
-import { siteSettingsSchema, type SiteSettingsFormData } from '@/lib/validations/settings';
+import { siteSettingsSchema } from '@/lib/validations/settings';
 
 export type SettingsActionResult = {
   success: boolean;
@@ -16,7 +16,7 @@ export async function updateSiteSettings(formData: FormData): Promise<SettingsAc
     return { success: false, error: authError || 'Admin authorization required' };
   }
 
-  const rawData: Record<string, any> = {
+  const rawData: Record<string, unknown> = {
     site_name_gu: formData.get('site_name_gu'),
     site_name_en: formData.get('site_name_en'),
     site_tagline_gu: formData.get('site_tagline_gu'),

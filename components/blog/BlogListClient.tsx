@@ -25,10 +25,12 @@ export const BlogListClient: React.FC<BlogListClientProps> = ({
   const [isPending, startTransition] = useTransition();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [prevInitialSearch, setPrevInitialSearch] = useState(initialSearch);
 
-  useEffect(() => {
+  if (initialSearch !== prevInitialSearch) {
+    setPrevInitialSearch(initialSearch);
     setSearchQuery(initialSearch);
-  }, [initialSearch]);
+  }
 
   // Debounce server-side search via URL ?q=
   useEffect(() => {

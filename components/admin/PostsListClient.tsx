@@ -11,7 +11,6 @@ import {
   Trash2,
   CheckCircle2,
   Clock,
-  ExternalLink,
   Filter,
 } from 'lucide-react';
 import { Post } from '@/types';
@@ -57,7 +56,7 @@ export default function PostsListClient({ posts: initialPosts }: PostsListClient
       } else {
         alert(res.error || 'Failed to delete post');
       }
-    } catch (err) {
+    } catch {
       alert('Error deleting post');
     } finally {
       setIsDeleting(false);
@@ -115,7 +114,7 @@ export default function PostsListClient({ posts: initialPosts }: PostsListClient
           <Filter className="w-4 h-4 text-maroon-primary/50 shrink-0" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
             className="text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/30 text-maroon-primary focus:outline-none focus:ring-1 focus:ring-gold-primary w-full sm:w-auto"
           >
             <option value="all">બધી સ્થિતિ (All Status)</option>

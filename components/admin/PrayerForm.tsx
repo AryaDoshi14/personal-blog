@@ -19,6 +19,8 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
 
   const [activeTab, setActiveTab] = useState<'gu' | 'en'>('gu');
 
+  const normalizeText = (text?: string | null) => (text ? text.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n') : '');
+
   const [slug, setSlug] = useState(initialData?.slug || '');
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(Boolean(initialData?.slug));
 
@@ -28,8 +30,8 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
   const [subtitleGu, setSubtitleGu] = useState(initialData?.subtitle_gu || '');
   const [subtitleEn, setSubtitleEn] = useState(initialData?.subtitle_en || '');
 
-  const [contentGu, setContentGu] = useState(initialData?.content_gu || '');
-  const [contentEn, setContentEn] = useState(initialData?.content_en || '');
+  const [contentGu, setContentGu] = useState(normalizeText(initialData?.content_gu));
+  const [contentEn, setContentEn] = useState(normalizeText(initialData?.content_en));
 
   const [iconType, setIconType] = useState<'flute' | 'lotus' | 'peacock' | 'namaste'>(
     initialData?.icon_type || 'namaste'
@@ -80,7 +82,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
       } else {
         setTitleEn(result.data.title_en);
         setSubtitleEn(result.data.subtitle_en);
-        setContentEn(result.data.content_en);
+        setContentEn(normalizeText(result.data.content_en));
 
         if (!isSlugManuallyEdited && !initialData && result.data.title_en) {
           const generated = result.data.title_en
@@ -269,7 +271,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
               <textarea
                 rows={10}
                 value={contentGu}
-                onChange={(e) => setContentGu(e.target.value)}
+                onChange={(e) => setContentGu(normalizeText(e.target.value))}
                 placeholder="અધરં મધુરં વદનં મધુરં..."
                 className="w-full text-sm font-serif leading-relaxed p-4 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
               />
@@ -361,7 +363,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
               <textarea
                 rows={10}
                 value={contentEn}
-                onChange={(e) => setContentEn(e.target.value)}
+                onChange={(e) => setContentEn(normalizeText(e.target.value))}
                 placeholder="His lips are sweet, His face is sweet..."
                 className="w-full text-sm font-sans leading-relaxed p-4 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
               />

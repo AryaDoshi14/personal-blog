@@ -6,12 +6,7 @@ import {
   Mail,
   MailOpen,
   Trash2,
-  Calendar,
-  Phone,
-  User,
   Search,
-  CheckCircle2,
-  Clock,
   X,
 } from 'lucide-react';
 import { ContactMessage } from '@/types';
@@ -26,7 +21,7 @@ export default function MessagesListClient({
   messages: initialMessages,
 }: MessagesListClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
@@ -114,7 +109,7 @@ export default function MessagesListClient({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) => setFilter(e.target.value as 'all' | 'unread' | 'read')}
             className="text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/30 text-maroon-primary focus:outline-none focus:ring-1 focus:ring-gold-primary w-full sm:w-auto"
           >
             <option value="all">બધા સંદેશા (All)</option>

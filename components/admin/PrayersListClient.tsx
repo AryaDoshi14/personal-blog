@@ -10,7 +10,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  Sparkles,
 } from 'lucide-react';
 import { Prayer } from '@/types';
 import DeleteConfirmDialog from './DeleteConfirmDialog';

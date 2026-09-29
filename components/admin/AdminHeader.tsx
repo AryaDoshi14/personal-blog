@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, ShieldCheck, User } from 'lucide-react';
-import Link from 'next/link';
+import { Menu, ShieldCheck } from 'lucide-react';
 
 interface AdminHeaderProps {
   onMenuClick: () => void;

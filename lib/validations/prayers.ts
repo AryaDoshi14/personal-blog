@@ -30,12 +30,13 @@ export const prayerFormSchema = z.object({
     .transform((v) => v || null),
   content_gu: z
     .string()
-    .min(1, 'Gujarati content is required'),
+    .min(1, 'Gujarati content is required')
+    .transform((v) => v.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n')),
   content_en: z
     .string()
     .optional()
     .or(z.literal(''))
-    .transform((v) => v || null),
+    .transform((v) => (v ? v.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n') : null)),
   icon_type: z.enum(['flute', 'lotus', 'peacock', 'namaste']),
   order_index: z
     .number()

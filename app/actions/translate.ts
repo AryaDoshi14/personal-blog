@@ -208,7 +208,7 @@ ${input.content_gu || ''}
       data: {
         title_en: parsed.title_en || '',
         subtitle_en: parsed.subtitle_en || '',
-        content_en: parsed.content_en || '',
+        content_en: (parsed.content_en || '').replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n'),
       },
     };
   } catch (err) {

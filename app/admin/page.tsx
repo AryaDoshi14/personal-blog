@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { Post } from '@/types';
 import {
   FileText,
   Sparkles,
@@ -11,7 +12,6 @@ import {
   Edit,
   Clock,
   CheckCircle2,
-  AlertCircle,
 } from 'lucide-react';
 
 export default async function AdminDashboardPage() {
@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
   let prayerCount = 0;
   let messageCount = 0;
   let unreadMessageCount = 0;
-  let recentPosts: any[] = [];
+  let recentPosts: Pick<Post, 'id' | 'title_gu' | 'title_en' | 'status' | 'slug' | 'published_at' | 'updated_at'>[] = [];
 
   if (supabase) {
     try {

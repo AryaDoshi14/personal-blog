@@ -5,7 +5,7 @@ import { Language } from '@/types';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileMenu } from './MobileMenu';
 import { HeaderAuthWidget } from '@/components/auth/HeaderAuthWidget';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getCurrentViewer } from '@/lib/supabase/viewer';
 
 interface HeaderProps {
   lang: Language;
@@ -21,22 +21,12 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
     { href: `/${lang}/contact`, labelGu: 'સંપર્ક', labelEn: 'Contact' },
   ];
 
-  // Fetch viewer display name for mobile menu (admins excluded)
-  let mobileUserName: string | null = null;
-  const supabase = await createServerSupabaseClient();
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, full_name, email')
-        .eq('id', user.id)
-        .single();
-      if (profile && profile.role === 'viewer') {
-        mobileUserName = profile.full_name || profile.email?.split('@')[0] || null;
-      }
-    }
-  }
+  // Single cached viewer lookup per request
+  const { profile } = await getCurrentViewer();
+  const mobileUserName =
+    profile && profile.role === 'viewer'
+      ? profile.full_name?.trim() || (lang === 'gu' ? 'ભક્ત' : 'Devotee')
+      : null;
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#FAF6F0]/95 backdrop-blur-sm border-b border-[#E8DFD3]/80 transition-shadow">
@@ -46,7 +36,7 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
           href={`/${lang}`}
           className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#C59B4B] rounded-lg p-1"
         >
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 transition-transform duration-300 group-hover:rotate-45">
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 shrink-0 transition-transform duration-300 group-hover:rotate-45">
             <Image
               src="/images/defaults/logo-mandala.svg"
               alt="Shreeji Bawa Emblem"
@@ -66,7 +56,7 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
             <Link
               key={link.href}
               href={link.href}
-              className="text-[#501518] font-serif-gu font-medium text-base hover:text-[#C59B4B] transition-colors py-1 border-b-2 border-transparent hover:border-[#C59B4B]"
+              className="text-[#501518] font-serif-gu font-medium text-base hover:text-[#C59B4B] focus:outline-none focus:ring-2 focus:ring-[#C59B4B] rounded transition-colors py-1 border-b-2 border-transparent hover:border-[#C59B4B]"
             >
               {lang === 'gu' ? link.labelGu : link.labelEn}
             </Link>
@@ -75,7 +65,7 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName }) => {
 
         {/* Desktop Language Switcher + Auth Widget */}
         <div className="hidden md:flex items-center gap-3">
-          <HeaderAuthWidget lang={lang} />
+          <HeaderAuthWidget lang={lang} profile={profile} />
           <LanguageSwitcher currentLang={lang} />
         </div>
 

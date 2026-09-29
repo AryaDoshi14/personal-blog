@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Loader2, AlertCircle, CheckCircle, Sparkles, Building, Phone, Share2, Shield, User } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, Sparkles, Building, Phone, Shield, User } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { updateSiteSettings, type SettingsActionResult } from '@/app/actions/settings';
 import ImageUploader from './ImageUploader';

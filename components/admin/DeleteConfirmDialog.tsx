@@ -43,7 +43,7 @@ export default function DeleteConfirmDialog({
             <h3 className="text-lg font-serif font-bold text-maroon-primary">{title}</h3>
             {itemName && (
               <p className="text-sm font-medium text-maroon-primary/90 mt-1 line-clamp-2 bg-cream-surface/70 px-2 py-1 rounded border border-gold-primary/20">
-                "{itemName}"
+                &ldquo;{itemName}&rdquo;
               </p>
             )}
             <p className="text-xs text-maroon-primary/70 mt-2 leading-relaxed">{message}</p>

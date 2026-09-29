@@ -93,19 +93,15 @@ export async function getCategories(): Promise<Category[]> {
       .select('*')
       .order('sort_order', { ascending: true });
 
-    if (error) {
-      console.error('Error in getCategories:', error);
-      return [];
-    }
-
-    if (!data || data.length === 0) {
+    if (error || !data || data.length === 0) {
+      if (error) console.error('Error in getCategories:', error);
       return DEFAULT_CATEGORIES;
     }
 
     return data as Category[];
   } catch (err) {
     console.error('Error in getCategories:', err);
-    return [];
+    return DEFAULT_CATEGORIES;
   }
 }
 
@@ -122,19 +118,15 @@ export async function getPrayers(): Promise<Prayer[]> {
       .select('*')
       .order('order_index', { ascending: true });
 
-    if (error) {
-      console.error('Error in getPrayers:', error);
-      return [];
-    }
-
-    if (!data || data.length === 0) {
+    if (error || !data || data.length === 0) {
+      if (error) console.error('Error in getPrayers:', error);
       return DEFAULT_PRAYERS;
     }
 
     return data as Prayer[];
   } catch (err) {
     console.error('Error in getPrayers:', err);
-    return [];
+    return DEFAULT_PRAYERS;
   }
 }
 
@@ -151,26 +143,15 @@ export async function getPrayerBySlug(slug: string): Promise<Prayer | null> {
       .eq('slug', slug)
       .maybeSingle();
 
-    if (error) {
-      console.error('Error in getPrayerBySlug:', error);
-      return null;
-    }
-
-    if (!data) {
-      // Check if DB table is completely empty
-      const { count } = await supabase
-        .from('prayers')
-        .select('*', { count: 'exact', head: true });
-      if (count === 0) {
-        return DEFAULT_PRAYERS.find((p) => p.slug === slug) || null;
-      }
-      return null;
+    if (error || !data) {
+      if (error) console.error('Error in getPrayerBySlug:', error);
+      return DEFAULT_PRAYERS.find((p) => p.slug === slug) || null;
     }
 
     return data as Prayer;
   } catch (err) {
     console.error('Error in getPrayerBySlug:', err);
-    return null;
+    return DEFAULT_PRAYERS.find((p) => p.slug === slug) || null;
   }
 }
 
@@ -246,32 +227,28 @@ export async function getPublishedPosts(options?: {
     const { data, error } = await query;
     if (error) {
       console.error('Error in getPublishedPosts:', error);
-      return [];
+      let posts = [...DEFAULT_POSTS];
+      if (options?.limit) posts = posts.slice(0, options.limit);
+      return posts;
     }
 
     if (!data || data.length === 0) {
-      // If a search or category filter was applied, return empty result
       if (rawSearch || options?.categoryId) {
         return [];
       }
-      // Check if DB table is genuinely empty (no published posts seeded yet)
-      const { count } = await supabase
-        .from('posts')
-        .select('*', { count: 'exact', head: true });
-      if (count === 0) {
-        let posts = [...DEFAULT_POSTS];
-        if (options?.limit) {
-          posts = posts.slice(0, options.limit);
-        }
-        return posts;
+      let posts = [...DEFAULT_POSTS];
+      if (options?.limit) {
+        posts = posts.slice(0, options.limit);
       }
-      return [];
+      return posts;
     }
 
     return data as Post[];
   } catch (err) {
     console.error('Error in getPublishedPosts:', err);
-    return [];
+    let posts = [...DEFAULT_POSTS];
+    if (options?.limit) posts = posts.slice(0, options.limit);
+    return posts;
   }
 }
 
@@ -289,26 +266,15 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       .eq('status', 'published')
       .maybeSingle();
 
-    if (error) {
-      console.error('Error in getPostBySlug:', error);
-      return null;
-    }
-
-    if (!data) {
-      // Check if DB table is genuinely empty
-      const { count } = await supabase
-        .from('posts')
-        .select('*', { count: 'exact', head: true });
-      if (count === 0) {
-        return DEFAULT_POSTS.find((p) => p.slug === slug) || null;
-      }
-      return null;
+    if (error || !data) {
+      if (error) console.error('Error in getPostBySlug:', error);
+      return DEFAULT_POSTS.find((p) => p.slug === slug) || null;
     }
 
     return data as Post;
   } catch (err) {
     console.error('Error in getPostBySlug:', err);
-    return null;
+    return DEFAULT_POSTS.find((p) => p.slug === slug) || null;
   }
 }
 

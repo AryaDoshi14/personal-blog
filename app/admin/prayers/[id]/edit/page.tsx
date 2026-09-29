@@ -5,6 +5,8 @@ import { DEFAULT_PRAYERS } from '@/lib/data/defaults';
 import PrayerForm from '@/components/admin/PrayerForm';
 import { Prayer } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Edit Sacred Prayer | Admin',
 };

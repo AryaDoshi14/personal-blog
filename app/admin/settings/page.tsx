@@ -2,6 +2,7 @@ import React from 'react';
 import { getSiteSettings } from '@/lib/db';
 import SettingsForm from '@/components/admin/SettingsForm';
 
+export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Site Settings | Admin',
 };

@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import MessagesListClient from '@/components/admin/MessagesListClient';
 import { ContactMessage } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Contact Messages | Admin',
 };

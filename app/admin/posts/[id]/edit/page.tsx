@@ -6,6 +6,8 @@ import { DEFAULT_POSTS } from '@/lib/data/defaults';
 import PostForm from '@/components/admin/PostForm';
 import { Post } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Edit Post | Admin',
 };

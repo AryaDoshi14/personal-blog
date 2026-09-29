@@ -2,6 +2,7 @@ import React from 'react';
 import { getCategories } from '@/lib/db';
 import PostForm from '@/components/admin/PostForm';
 
+export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'New Post | Admin',
 };

@@ -4,6 +4,7 @@ import PostsListClient from '@/components/admin/PostsListClient';
 import { Post } from '@/types';
 import { DEFAULT_POSTS } from '@/lib/data/defaults';
 
+export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Blog Posts Management | Admin',
 };

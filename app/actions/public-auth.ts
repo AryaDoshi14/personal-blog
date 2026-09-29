@@ -4,29 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-// ---------------------------------------------------------------------------
-// Rate-limit helper using the rate_limits Postgres table
-// (serverless-safe: no in-memory state)
-// ---------------------------------------------------------------------------
-async function checkRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
-  const supabase = await createServerSupabaseClient();
-  if (!supabase) return true; // allow if not configured
-
-  const windowStart = new Date(Date.now() - windowSeconds * 1000).toISOString();
-
-  // Count recent attempts
-  const { count } = await supabase
-    .from('rate_limits')
-    .select('*', { count: 'exact', head: true })
-    .eq('key', key)
-    .gte('created_at', windowStart);
-
-  if ((count ?? 0) >= maxAttempts) return false;
-
-  // Record this attempt
-  await supabase.from('rate_limits').insert({ key });
-  return true;
-}
+import { checkRateLimit } from '@/lib/supabase/rate-limit';
 
 // ---------------------------------------------------------------------------
 // PUBLIC SIGNUP

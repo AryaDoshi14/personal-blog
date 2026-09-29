@@ -29,14 +29,9 @@ Follow these steps to connect your own Supabase project:
 1. Log in to [Supabase Dashboard](https://supabase.com/dashboard).
 2. Click **New Project**, select your organization, name your project (e.g. `shreeji-bawa-blog`), set a database password, and choose a region.
 
-### 2. Run the Schema
-1. In your Supabase project dashboard, open the **SQL Editor** from the left navigation.
-2. Click **New query**, paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql), and click **Run**.
-3. This creates:
-   - `profiles`, `categories`, `posts`, `prayers`, `site_settings`, `media`, and `messages` tables.
-   - Row Level Security (RLS) policies allowing public read on published items and admin-only writes.
-   - Triggers for automatic `updated_at` timestamps and user profile provisioning.
-   - Storage bucket definitions (`blog-media` and `site-assets`) with file type & size policies.
+### 2. Run the Schema (Fresh Installs vs Upgrades)
+- **Fresh Installs (`supabase/schema.sql`)**: In your Supabase project dashboard, open the **SQL Editor**, paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql), and click **Run**. This sets up the complete database schema from scratch including all tables, views (`public_profiles`), functions (`get_approved_comments`), RLS policies, and storage bucket definitions.
+- **Upgrades & Existing Deployments (`supabase/migrations/`)**: If upgrading an existing deployment, execute the timestamped migration files in [`supabase/migrations/`](supabase/migrations/) sequentially in chronological order. Each migration is idempotent and applies specific structural or security enhancements (e.g. locking rate limits and safeguarding public profile data).
 
 ### 3. Run the Seed Data
 1. In the **SQL Editor**, open another query, paste the contents of [`supabase/seed.sql`](supabase/seed.sql), and click **Run**.

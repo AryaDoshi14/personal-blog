@@ -23,8 +23,7 @@ export function CommentList({ comments, lang }: CommentListProps) {
     <ul className="space-y-4">
       {comments.map((comment) => {
         const displayName =
-          comment.user?.full_name ||
-          comment.user?.email?.split('@')[0] ||
+          comment.user?.full_name?.trim() ||
           (isGu ? 'ભક્ત' : 'Devotee');
         const date = new Date(comment.created_at).toLocaleDateString(
           isGu ? 'gu-IN' : 'en-US',

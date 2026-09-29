@@ -48,7 +48,7 @@ export interface Prayer {
   subtitle_en?: string | null;
   content_gu: string;
   content_en?: string | null;
-  icon_type: 'flute' | 'lotus' | 'peacock';
+  icon_type: 'flute' | 'lotus' | 'peacock' | 'namaste';
   order_index: number;
   created_at: string;
   updated_at: string;

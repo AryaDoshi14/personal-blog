@@ -31,8 +31,8 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
   const [contentGu, setContentGu] = useState(initialData?.content_gu || '');
   const [contentEn, setContentEn] = useState(initialData?.content_en || '');
 
-  const [iconType, setIconType] = useState<'flute' | 'lotus' | 'peacock'>(
-    initialData?.icon_type || 'flute'
+  const [iconType, setIconType] = useState<'flute' | 'lotus' | 'peacock' | 'namaste'>(
+    initialData?.icon_type || 'namaste'
   );
   const [orderIndex, setOrderIndex] = useState(initialData?.order_index || 1);
 
@@ -401,12 +401,13 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
             </label>
             <select
               value={iconType}
-              onChange={(e) => setIconType(e.target.value as any)}
+              onChange={(e) => setIconType(e.target.value as 'flute' | 'lotus' | 'peacock' | 'namaste')}
               className="w-full text-xs px-3 py-2 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
             >
               <option value="flute">વાંસળી (Flute)</option>
               <option value="lotus">કમળ (Lotus)</option>
               <option value="peacock">મોરપીંછ (Peacock Feather)</option>
+              <option value="namaste">નમસ્તે (Namaste / Pranam)</option>
             </select>
           </div>
 

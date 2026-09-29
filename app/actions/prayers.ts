@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
 import { prayerFormSchema } from '@/lib/validations/prayers';
 
@@ -13,7 +14,7 @@ export type PrayerActionResult = {
 };
 
 async function isPrayerSlugUnique(
-  supabase: any,
+  supabase: SupabaseClient,
   slug: string,
   excludeId?: string
 ): Promise<boolean> {
@@ -31,7 +32,7 @@ export async function createPrayer(formData: FormData): Promise<PrayerActionResu
     return { success: false, error: authError || 'Admin authorization required' };
   }
 
-  const rawData: Record<string, any> = {
+  const rawData: Record<string, unknown> = {
     slug: formData.get('slug'),
     title_gu: formData.get('title_gu'),
     title_en: formData.get('title_en'),
@@ -39,7 +40,7 @@ export async function createPrayer(formData: FormData): Promise<PrayerActionResu
     subtitle_en: formData.get('subtitle_en'),
     content_gu: formData.get('content_gu'),
     content_en: formData.get('content_en'),
-    icon_type: formData.get('icon_type') || 'flute',
+    icon_type: formData.get('icon_type') || 'namaste',
     order_index: Number(formData.get('order_index') || 0),
   };
 
@@ -107,7 +108,7 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
     return { success: false, error: authError || 'Admin authorization required' };
   }
 
-  const rawData: Record<string, any> = {
+  const rawData: Record<string, unknown> = {
     slug: formData.get('slug'),
     title_gu: formData.get('title_gu'),
     title_en: formData.get('title_en'),
@@ -115,7 +116,7 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
     subtitle_en: formData.get('subtitle_en'),
     content_gu: formData.get('content_gu'),
     content_en: formData.get('content_en'),
-    icon_type: formData.get('icon_type') || 'flute',
+    icon_type: formData.get('icon_type') || 'namaste',
     order_index: Number(formData.get('order_index') || 0),
   };
 

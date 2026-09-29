@@ -266,9 +266,51 @@ CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
-CREATE POLICY "Anyone can view profiles for display"
-  ON public.profiles FOR SELECT
-  USING (TRUE);
+-- PUBLIC PROFILES VIEW (id, full_name, avatar_url only - prevents email/role exposure)
+CREATE OR REPLACE VIEW public.public_profiles AS
+  SELECT id, full_name, avatar_url
+  FROM public.profiles;
+
+GRANT SELECT ON public.public_profiles TO anon, authenticated;
+
+-- SECURITY DEFINER FUNCTION FOR FETCHING APPROVED COMMENTS SAFELY
+CREATE OR REPLACE FUNCTION public.get_approved_comments(p_post_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSONB;
+BEGIN
+  SELECT COALESCE(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', c.id,
+        'post_id', c.post_id,
+        'user_id', c.user_id,
+        'content', c.content,
+        'status', c.status,
+        'created_at', c.created_at,
+        'updated_at', c.updated_at,
+        'user', jsonb_build_object(
+          'id', p.id,
+          'full_name', p.full_name,
+          'avatar_url', p.avatar_url
+        )
+      ) ORDER BY c.created_at ASC
+    ),
+    '[]'::jsonb
+  ) INTO result
+  FROM public.comments c
+  LEFT JOIN public.profiles p ON c.user_id = p.id
+  WHERE c.post_id = p_post_id AND c.status = 'approved';
+
+  RETURN result;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_approved_comments(UUID) TO anon, authenticated;
 
 CREATE POLICY "Admins can update profiles"
   ON public.profiles FOR UPDATE
@@ -391,10 +433,7 @@ CREATE POLICY "Users can delete their own comments"
   USING (auth.uid() = user_id);
 
 -- RATE LIMITS POLICIES
-CREATE POLICY "Allow server clients to manage rate limits"
-  ON public.rate_limits FOR ALL
-  USING (TRUE)
-  WITH CHECK (TRUE);
+-- Access is restricted to the service_role key only (RLS enabled, no public policies)
 
 -- ==============================================================================
 -- STORAGE BUCKETS CONFIGURATION (Run in Supabase Storage or SQL Editor)

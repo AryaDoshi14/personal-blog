@@ -98,8 +98,12 @@ ON CONFLICT (slug) DO UPDATE SET
   content_gu = EXCLUDED.content_gu,
   content_en = EXCLUDED.content_en;
 
--- 3. POSTS SEED (4 Featured Blogs matching reference image)
-INSERT INTO public.posts (id, slug, title_gu, title_en, excerpt_gu, excerpt_en, content_gu, content_en, cover_image_url, cover_image_alt, category_id, status, published_at, tags)
+-- 3. POSTS SEED (4 Featured Blogs matching reference image and DEFAULT_POSTS)
+INSERT INTO public.posts (
+  id, slug, title_gu, title_en, excerpt_gu, excerpt_en, content_gu, content_en,
+  cover_image_url, cover_image_alt, category_id, status, published_at,
+  author_name_gu, author_name_en, likes_count, tags
+)
 VALUES
   (
     'c1111111-1111-1111-1111-111111111111',
@@ -108,13 +112,16 @@ VALUES
     'The True Meaning of Bhakti',
     'ભક્તિ માત્ર રીવાજ નથી, તે જીવનની દિશા છે...',
     'Bhakti is not merely a custom or routine; it is the ultimate compass of life...',
-    '<p>ભક્તિ માત્ર બાહ્ય આચરણ કે રોજિંદો રીવાજ નથી, પરંતુ હૃદયનો પરમાત્મા સાથેનો અતૂટ સંબંધ છે. જ્યારે મનુષ્ય પોતાના અહંકારને ઓગાળીને ઈશ્વરના ચરણોમાં સંપૂર્ણ સમર્પણ કરે છે, ત્યારે જ સાચી ભક્તિનો ઉદય થાય છે.</p><h3>નિઃસ્વાર્થ પ્રેમનું સ્વરૂપ</h3><p>પુષ્ટિમાર્ગમાં ભક્તિનો અર્થ છે પ્રેમલક્ષણા ભક્તિ. જેમાં કોઈ સ્વાર્થ કે અપેક્ષા નથી હોતી, માત્ર અને માત્ર શ્રીજી બાવાની પ્રસન્નતા જ મુખ્ય ધ્યેય હોય છે. આપણે જે કંઈ કરીએ તે પ્રભુ સેવાના ભાવથી કરવું એ જ સંસારમાં રહીને પણ મોક્ષ પામવાનો સરળ રાજમાર્ગ છે.</p><blockquote>"જે ક્ષણે મનમાંથી ''હું'' અને ''મારું'' છૂટી જાય છે, તે જ ક્ષણે પ્રભુ શ્રીજી બાવાની અસીમ કૃપાની અનુભૂતિ થાય છે."</blockquote><p>આપણા રોજિંદા જીવનમાં પણ દરેક કાર્યને ઈશ્વરને અર્પણ કરીને જીવવું એ સાચી સાધના છે.</p>',
-    '<p>Bhakti is not merely an external custom or a daily routine; it is an unbroken bond of the soul with the Divine. When an individual dissolves the ego and surrenders completely at the lotus feet of the Almighty, true devotion awakens.</p><h3>The Essence of Selfless Love</h3><p>In Pushtimarg, devotion is characterized as Prem-lakshana Bhakti — pure love without transactional desires. The sole goal is bringing happiness to Shreeji. Doing whatever comes our way with an attitude of humble service is the royal path of grace.</p><blockquote>"The moment the ego drops, the boundless grace of Shreeji begins to flow through one''s life."</blockquote>',
+    '<p>ભક્તિ માત્ર બાહ્ય આચરણ કે રોજિંદો રીવાજ નથી, પરંતુ હૃદયનો પરમાત્મા સાથેનો અતૂટ સંબંધ છે. જ્યારે મનુષ્ય પોતાના અહંકારને ઓગાળીને ઈશ્વરના ચરણોમાં સંપૂર્ણ સમર્પણ કરે છે, ત્યારે જ સાચી ભક્તિનો ઉદય થાય છે.</p><h2>નિઃસ્વાર્થ પ્રેમનું સ્વરૂપ</h2><p>પુષ્ટિમાર્ગમાં ભક્તિનો અર્થ છે પ્રેમલક્ષણા ભક્તિ. જેમાં કોઈ સ્વાર્થ કે અપેક્ષા નથી હોતી, માત્ર અને માત્ર શ્રીજી બાવાની પ્રસન્નતા જ મુખ્ય ધ્યેય હોય છે. આપણે જે કંઈ કરીએ તે પ્રભુ સેવાના ભાવથી કરવું એ જ સંસારમાં રહીને પણ મોક્ષ પામવાનો સરળ રાજમાર્ગ છે.</p><blockquote>"જે ક્ષણે મનમાંથી ''હું'' અને ''મારું'' છૂટી જાય છે, તે જ ક્ષણે પ્રભુ શ્રીજી બાવાની અસીમ કૃપાની અનુભૂતિ થાય છે."</blockquote><p>આપણા રોજિંદા જીવનમાં પણ દરેક કાર્યને ઈશ્વરને અર્પણ કરીને જીવવું એ સાચી સાધના છે. સેવા પૂજા કરતી વખતે ચિત્ત શાંત રાખવું અને અન્ય જીવો પ્રત્યે દયાભાવ રાખવો એ જ વૈષ્ણવ ધર્મનો સાર છે.</p>',
+    '<p>Bhakti is not merely an external custom or a daily routine; it is an unbroken bond of the soul with the Divine. When an individual dissolves the ego and surrenders completely at the lotus feet of the Almighty, true devotion awakens.</p><h2>The Essence of Selfless Love</h2><p>In Pushtimarg, devotion is characterized as Prem-lakshana Bhakti — pure love without transactional desires. The sole goal is bringing happiness to Shreeji. Doing whatever comes our way with an attitude of humble service is the royal path of grace.</p><blockquote>"The moment the ego drops, the boundless grace of Shreeji begins to flow through one''s life."</blockquote><p>Surrendering all our actions throughout the day to the Lord is the essence of daily sadhana. Maintaining calm during seva and nurturing compassion toward all living beings reflects the true Vaishnav ethos.</p>',
     '/images/defaults/blog-bhakti.webp',
     'Sunset over holy river ghat with boats and devotional atmosphere',
     'a1111111-1111-1111-1111-111111111111',
     'published',
     NOW() - INTERVAL '3 days',
+    'સંપાદક',
+    'Editor',
+    14,
     ARRAY['ભક્તિ', 'પુષ્ટિમાર્ગ', 'સાધના']
   ),
   (
@@ -124,13 +131,16 @@ VALUES
     'Our Eternal Bond with Shrinathji',
     'શ્રીનાથજી સાથેનું નાતું એટલું પ્રગટ છે કે શબ્દો ઓછા પડે...',
     'The bond with Shrinathji is so intimate and profound that words fall short...',
-    '<p>શ્રીનાથજી માત્ર એક મૂર્તિ કે વિગ્રહ નથી, પરંતુ વૈષ્ણવ ભક્ત માટે સાક્ષાત્ પૂર્ણ પુરુષોત્તમ છે. જેમ બાળક પોતાની માતાના ખોળામાં સંપૂર્ણ નિર્ભય બનીને સુઈ જાય છે, તેમ ભક્ત શ્રીજીના શરણમાં પરમ શાંતિ અનુભવે છે.</p><h3>નાથદ્વારાની દિવ્ય ઝાંખી</h3><p>નાથદ્વારામાં જ્યારે શંખનાદ થાય અને રાજભોગ કે શયનના દર્શન ખુલે, ત્યારે લાખો વૈષ્ણવોનું હૃદય એક અનોખા આનંદથી ધબકવા લાગે છે. શ્રીજીનો એ દિવ્ય શૃંગાર, કમળ સમાન નયનો અને મુખ પરનું મૃદુ હાસ્ય ભવભવના તાપ હરી લે છે.</p><p>આપણે જ્યાં પણ હોઈએ, ભાવપૂર્વક સ્મરણ કરીએ એટલે શ્રીજી આપણી સાથે જ બિરાજમાન છે તેવો અહેસાસ થાય છે.</p>',
-    '<p>Shrinathji is not just a sacred idol; to a devotee, He is the living Supreme Divine. Just as a child rests fearlessly in its mother''s lap, a Vaishnav finds supreme tranquility at Shreeji''s lotus feet.</p><h3>The Divine Glances of Nathdwara</h3><p>When the conch resonates in Nathdwara and the curtains part for Rajbhog or Shayan Darshan, millions of hearts beat with boundless ecstacy. His ornate shringar and lotus-like eyes banish the pains of worldly existence.</p>',
+    '<p>શ્રીનાથજી માત્ર એક મૂર્તિ કે વિગ્રહ નથી, પરંતુ વૈષ્ણવ ભક્ત માટે સાક્ષાત્ પૂર્ણ પુરુષોત્તમ છે. જેમ બાળક પોતાની માતાના ખોળામાં સંપૂર્ણ નિર્ભય બનીને સુઈ જાય છે, તેમ ભક્ત શ્રીજીના શરણમાં પરમ શાંતિ અનુભવે છે.</p><h2>નાથદ્વારાની દિવ્ય ઝાંખી</h2><p>નાથદ્વારામાં જ્યારે શંખનાદ થાય અને રાજભોગ કે શયનના દર્શન ખુલે, ત્યારે લાખો વૈષ્ણવોનું હૃદય એક અનોખા આનંદથી ધબકવા લાગે છે. શ્રીજીનો એ દિવ્ય શૃંગાર, કમળ સમાન નયનો અને મુખ પરનું મૃદુ હાસ્ય ભવભવના તાપ હરી લે છે.</p><p>આપણે જ્યાં પણ હોઈએ, ભાવપૂર્વક સ્મરણ કરીએ એટલે શ્રીજી આપણી સાથે જ બિરાજમાન છે તેવો અહેસાસ થાય છે. આ નાતું શ્રદ્ધા અને સમર્પણનું છે.</p>',
+    '<p>Shrinathji is not just a sacred idol; to a devotee, He is the living Supreme Divine. Just as a child rests fearlessly in its mother''s lap, a Vaishnav finds supreme tranquility at Shreeji''s lotus feet.</p><h2>The Divine Glances of Nathdwara</h2><p>When the conch resonates in Nathdwara and the curtains part for Rajbhog or Shayan Darshan, millions of hearts beat with boundless ecstacy. His ornate shringar and lotus-like eyes banish the pains of worldly existence.</p><p>Wherever we may be, remembering Him with deep affection makes His presence immediately tangible.</p>',
     '/images/defaults/blog-shrinathji.webp',
     'Sacred Shrinathji deity adorned in divine jewels and flower garlands',
     'a2222222-2222-2222-2222-222222222222',
     'published',
     NOW() - INTERVAL '5 days',
+    'શ્રીજી ભક્ત',
+    'Shreeji Devotee',
+    28,
     ARRAY['શ્રીનાથજી', 'દર્શન', 'વૈષ્ણવ']
   ),
   (
@@ -140,13 +150,16 @@ VALUES
     'Life Lessons from Devotion',
     'કેટલાક અનુભવ શબ્દોમાં વણી શકાય, અનેક આંખો ભીંજાવે...',
     'Some life experiences can be captured in words, while others gently moisten the eyes...',
-    '<p>જીવનના અનેક વળાંકો પર જ્યારે મુશ્કેલીઓનો સામનો કરવો પડે છે, ત્યારે સત્સંગ અને પ્રભુ સ્મરણ જ સાચો સહારો બને છે. વડીલોના આશીર્વાદ અને ધર્મના સંસ્કારો મનુષ્યને ગમે તેવી વિપરીત પરિસ્થિતિમાં પણ અડગ રાખે છે.</p><h3>નમ્રતા અને સંતોષ</h3><p>જીવનમાં સૌથી મોટી સંપત્તિ સંતોષ છે. જ્યારે આપણે બીજાની પ્રગતિ જોઈને ઈર્ષ્યા કરવાને બદલે પ્રભુએ જે આપ્યું છે તેનો આભાર માનીએ છીએ, ત્યારે જીવનમાં સાચી સુખ-શાંતિ આવે છે. સેવા માત્ર મંદિરમાં જ નહીં, જરૂરિયાતમંદ વ્યક્તિની મદદ કરવામાં પણ છે.</p>',
-    '<p>At various turns of life when challenges arise, spiritual satsang and remembering the Lord become our guiding light. Blessings of elders and roots in faith keep one anchored through every storm.</p><h3>Humility and Contentment</h3><p>The greatest wealth in life is contentment. When we thank God for what we have instead of comparing ourselves with others, genuine peace fills the heart.</p>',
+    '<p>જીવનના અનેક વળાંકો પર જ્યારે મુશ્કેલીઓનો સામનો કરવો પડે છે, ત્યારે સત્સંગ અને પ્રભુ સ્મરણ જ સાચો સહારો બને છે. વડીલોના આશીર્વાદ અને ધર્મના સંસ્કારો મનુષ્યને ગમે તેવી વિપરીત પરિસ્થિતિમાં પણ અડગ રાખે છે.</p><h2>નમ્રતા અને સંતોષ</h2><p>જીવનમાં સૌથી મોટી સંપત્તિ સંતોષ છે. જ્યારે આપણે બીજાની પ્રગતિ જોઈને ઈર્ષ્યા કરવાને બદલે પ્રભુએ જે આપ્યું છે તેનો આભાર માનીએ છીએ, ત્યારે જીવનમાં સાચી સુખ-શાંતિ આવે છે. સેવા માત્ર મંદિરમાં જ નહીં, જરૂરિયાતમંદ વ્યક્તિની મદદ કરવામાં પણ છે.</p><p>સૌમ્ય વાણી અને પરોપકારની ભાવના એ જ સાચું જીવન ઘડતર કરે છે.</p>',
+    '<p>At various turns of life when challenges arise, spiritual satsang and remembering the Lord become our guiding light. Blessings of elders and roots in faith keep one anchored through every storm.</p><h2>Humility and Contentment</h2><p>The greatest wealth in life is contentment. When we thank God for what we have instead of comparing ourselves with others, genuine peace fills the heart. True seva extends beyond temple walls to serving those in need.</p>',
     '/images/defaults/blog-lessons.webp',
     'Ancient scripture manuscript with quill pen and warm lighting',
     'a3333333-3333-3333-3333-333333333333',
     'published',
     NOW() - INTERVAL '8 days',
+    'સંપાદક',
+    'Editor',
+    9,
     ARRAY['સંસ્કાર', 'જીવન', 'અનુભવ']
   ),
   (
@@ -156,13 +169,16 @@ VALUES
     'The Divinity of Vallabh Tradition',
     'પુષ્ટિમાર્ગની મહિમા અને તેની અનોખી ગતિ...',
     'The boundless glory and unique grace of the Pushtimarg path...',
-    '<p>જગદ્ગુરુ શ્રી વલ્લભાચાર્ય મહાપ્રભુજીએ કલિયુગમાં જીવોના ઉદ્ધાર માટે પુષ્ટિમાર્ગની સ્થાપના કરી. આ માર્ગમાં કોઈ કઠોર તપસ્યા નથી, પરંતુ પ્રેમ અને સ્નેહથી શ્રીઠાકોરજીની સેવા કરવાનો આદેશ છે.</p><h3>બ્રહ્મસંબંધનું મહત્વ</h3><p>બ્રહ્મસંબંધ દીક્ષા દ્વારા જીવ પોતાના શરીર, મન, ધન અને સમગ્ર જીવનને શ્રીકૃષ્ણને સમર્પિત કરે છે. ત્યાર પછી જે પણ ભોજન કે વસ્તુ વપરાય તે પહેલાં પ્રભુને અર્પણ કરવામાં આવે છે. આ પરંપરા આપણા ઘરોને મંદિર બનાવે છે.</p>',
-    '<p>Jagadguru Shri Vallabhacharya Mahaprabhuji established Pushtimarg for the spiritual elevation of souls in Kaliyuga. In this path, there is no harsh ascetic penance; rather, it is the joyful service of Thakorji with unconditional love.</p><h3>The Sanctity of Brahmasambandha</h3><p>Through Brahmasambandha, a seeker surrenders their body, mind, wealth, and soul to Shri Krishna. Every action and meal is offered first to the Divine, turning every home into a sacred haven.</p>',
+    '<p>જગદ્ગુરુ શ્રી વલ્લભાચાર્ય મહાપ્રભુજીએ કલિયુગમાં જીવોના ઉદ્ધાર માટે પુષ્ટિમાર્ગની સ્થાપના કરી. આ માર્ગમાં કોઈ કઠોર તપસ્યા નથી, પરંતુ પ્રેમ અને સ્નેહથી શ્રીઠાકોરજીની સેવા કરવાનો આદેશ છે.</p><h2>બ્રહ્મસંબંધનું મહત્વ</h2><p>બ્રહ્મસંબંધ દીક્ષા દ્વારા જીવ પોતાના શરીર, મન, ધન અને સમગ્ર જીવનને શ્રીકૃષ્ણને સમર્પિત કરે છે. ત્યાર પછી જે પણ ભોજન કે વસ્તુ વપરાય તે પહેલાં પ્રભુને અર્પણ કરવામાં આવે છે. આ પરંપરા આપણા ઘરોને મંદિર બનાવે છે.</p><p>હવેલી સંગીત, વિવિધ ઋતુઓના મનોરથ અને શૃંગારની કળા આપણી સંસ્કૃતિનો અમૂલ્ય વારસો છે.</p>',
+    '<p>Jagadguru Shri Vallabhacharya Mahaprabhuji established Pushtimarg for the spiritual elevation of souls in Kaliyuga. In this path, there is no harsh ascetic penance; rather, it is the joyful service of Thakorji with unconditional love.</p><h2>The Sanctity of Brahmasambandha</h2><p>Through Brahmasambandha, a seeker surrenders their body, mind, wealth, and soul to Shri Krishna. Every action and meal is offered first to the Divine, turning every home into a sacred haven.</p><p>Haveli Sangeet, seasonal Manoraths, and the sublime art of Shringar remain an irreplaceable spiritual legacy.</p>',
     '/images/defaults/blog-tradition.webp',
     'Ancient Hindu temple stone shikhar tower reaching toward the sky',
     'a2222222-2222-2222-2222-222222222222',
     'published',
     NOW() - INTERVAL '12 days',
+    'વૈષ્ણવ જન',
+    'Vaishnav Devotee',
+    19,
     ARRAY['વલ્લભાચાર્ય', 'પુષ્ટિમાર્ગ', 'પરંપરા']
   )
 ON CONFLICT (slug) DO UPDATE SET
@@ -177,6 +193,9 @@ ON CONFLICT (slug) DO UPDATE SET
   category_id = EXCLUDED.category_id,
   status = EXCLUDED.status,
   published_at = EXCLUDED.published_at,
+  author_name_gu = EXCLUDED.author_name_gu,
+  author_name_en = EXCLUDED.author_name_en,
+  likes_count = EXCLUDED.likes_count,
   tags = EXCLUDED.tags;
 
 -- 4. SITE SETTINGS SEED (Editable texts matching reference)

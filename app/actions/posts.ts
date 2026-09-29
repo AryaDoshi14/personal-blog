@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { postFormSchemaWithAltCheck } from '@/lib/validations/posts';
@@ -20,7 +21,7 @@ export type PostActionResult = {
 
 // Check if slug is unique (excluding an optional current post ID)
 async function isSlugUnique(
-  supabase: any,
+  supabase: SupabaseClient,
   slug: string,
   excludeId?: string
 ): Promise<boolean> {
@@ -39,7 +40,7 @@ export async function createPost(formData: FormData): Promise<PostActionResult> 
   }
 
   // Parse raw form data
-  const rawData: Record<string, any> = {
+  const rawData: Record<string, unknown> = {
     slug: formData.get('slug'),
     title_gu: formData.get('title_gu'),
     title_en: formData.get('title_en'),
@@ -138,7 +139,7 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
     return { success: false, error: authError || 'Admin authorization required' };
   }
 
-  const rawData: Record<string, any> = {
+  const rawData: Record<string, unknown> = {
     slug: formData.get('slug'),
     title_gu: formData.get('title_gu'),
     title_en: formData.get('title_en'),
@@ -188,11 +189,10 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
     .eq('id', id)
     .single();
 
+  // Set published_at = now() only when a post first becomes published (if null); never overwrite it later.
   let publishedAt = currentPost?.published_at;
-  if (data.status === 'published' && (!publishedAt || currentPost?.status !== 'published')) {
-    publishedAt = new Date().toISOString();
-  } else if (data.status === 'draft') {
-    publishedAt = null;
+  if (data.status === 'published') {
+    publishedAt = currentPost?.published_at || new Date().toISOString();
   }
 
   const sanitizedContentGu = sanitizeHtml(data.content_gu);
@@ -336,7 +336,17 @@ export async function togglePostStatus(
     return { success: false, error: authError || 'Admin authorization required' };
   }
 
-  const publishedAt = newStatus === 'published' ? new Date().toISOString() : null;
+  const { data: currentPost } = await supabase
+    .from('posts')
+    .select('published_at, slug')
+    .eq('id', id)
+    .maybeSingle();
+
+  // Set published_at = now() only when a post first becomes published (if null); never overwrite it later.
+  let publishedAt = currentPost?.published_at;
+  if (newStatus === 'published') {
+    publishedAt = currentPost?.published_at || new Date().toISOString();
+  }
 
   const { data: post, error: updateError } = await supabase
     .from('posts')

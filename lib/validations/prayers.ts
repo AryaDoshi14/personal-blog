@@ -36,7 +36,7 @@ export const prayerFormSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform((v) => v || null),
-  icon_type: z.enum(['flute', 'lotus', 'peacock']),
+  icon_type: z.enum(['flute', 'lotus', 'peacock', 'namaste']),
   order_index: z
     .number()
     .int()

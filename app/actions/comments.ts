@@ -11,21 +11,7 @@ export type CommentActionResult = {
   status?: 'pending' | 'approved';
 };
 
-async function checkRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
-  const supabase = await createServerSupabaseClient();
-  if (!supabase) return true;
-
-  const windowStart = new Date(Date.now() - windowSeconds * 1000).toISOString();
-  const { count } = await supabase
-    .from('rate_limits')
-    .select('*', { count: 'exact', head: true })
-    .eq('key', key)
-    .gte('created_at', windowStart);
-
-  if ((count ?? 0) >= maxAttempts) return false;
-  await supabase.from('rate_limits').insert({ key });
-  return true;
-}
+import { checkRateLimit } from '@/lib/supabase/rate-limit';
 
 export async function createComment(
   postId: string,

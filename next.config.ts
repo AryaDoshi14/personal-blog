@@ -10,6 +10,7 @@ const supabaseHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['isomorphic-dompurify', 'jsdom'],
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
@@ -17,12 +18,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       ...(supabaseHostname
         ? [
-            {
-              protocol: 'https' as const,
-              hostname: supabaseHostname,
-              pathname: '/storage/v1/object/public/**',
-            },
-          ]
+          {
+            protocol: 'https' as const,
+            hostname: supabaseHostname,
+            pathname: '/storage/v1/object/public/**',
+          },
+        ]
         : []),
     ],
   },

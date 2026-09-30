@@ -17,25 +17,12 @@ import {
   getSiteSettings,
   getApprovedComments,
 } from '@/lib/db';
-import { DEFAULT_POSTS } from '@/lib/data/defaults';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { getUserLikedPost } from '@/app/actions/likes';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { Language } from '@/types';
 
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const posts = await getPublishedPosts();
-  const slugs = posts.length > 0 ? posts.map((p) => p.slug) : DEFAULT_POSTS.map((p) => p.slug);
-  const params: { lang: string; slug: string }[] = [];
-  for (const lang of ['gu', 'en']) {
-    for (const slug of slugs) {
-      params.push({ lang, slug });
-    }
-  }
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 interface PostDetailPageProps {
   params: Promise<{
@@ -97,10 +84,10 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const formattedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString(isGu ? 'gu-IN' : 'en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
     : null;
 
   return (

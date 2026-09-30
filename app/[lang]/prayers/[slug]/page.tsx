@@ -5,22 +5,9 @@ import { ArrowLeft } from 'lucide-react';
 import { MedallionIcon } from '@/components/ui/MedallionIcon';
 import { OrnamentalDivider } from '@/components/ui/OrnamentalDivider';
 import { getPrayerBySlug, getPrayers } from '@/lib/db';
-import { DEFAULT_PRAYERS } from '@/lib/data/defaults';
 import { Language } from '@/types';
 
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const prayers = await getPrayers();
-  const slugs = prayers.length > 0 ? prayers.map((p) => p.slug) : DEFAULT_PRAYERS.map((p) => p.slug);
-  const params: { lang: string; slug: string }[] = [];
-  for (const lang of ['gu', 'en']) {
-    for (const slug of slugs) {
-      params.push({ lang, slug });
-    }
-  }
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 interface PrayerDetailPageProps {
   params: Promise<{

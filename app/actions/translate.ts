@@ -248,7 +248,7 @@ async function callGemini(prompt: string, schemaDescription: string): Promise<st
 
   const primaryModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
   // Fallback model list if the primary model fails or is unavailable
-  const candidateModels = [primaryModel, 'gemini-2.5-flash', 'gemini-3.1-flash-lite'].filter(
+  const candidateModels = [primaryModel, 'gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.5-flash-lite'].filter(
     (val, idx, arr) => arr.indexOf(val) === idx
   );
 

@@ -59,10 +59,12 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [translateError, setTranslateError] = useState<string | null>(null);
   const [translateSuccess, setTranslateSuccess] = useState<string | null>(null);
+  const [translateWarning, setTranslateWarning] = useState<string | null>(null);
 
   const handleAutoTranslate = async () => {
     setTranslateError(null);
     setTranslateSuccess(null);
+    setTranslateWarning(null);
 
     if (!titleGu.trim() && !contentGu.trim()) {
       setTranslateError('કૃપા કરીને પહેલા ગુજરાતી સ્તુતિનું શીર્ષક અથવા લખાણ લખો. (Please write Gujarati title or prayer text first.)');
@@ -91,6 +93,10 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
             .trim()
             .replace(/\s+/g, '-');
           if (generated) setSlug(generated);
+        }
+
+        if (result.warning) {
+          setTranslateWarning(`ચેતવણી (Warning): ${result.warning}`);
         }
 
         setTranslateSuccess('સ્તુતિનો અંગ્રેજી અનુવાદ તૈયાર થયો છે! કૃપા કરીને સાચવતા પહેલા તેની સમીક્ષા કરો. (Draft translated! Please review before saving.)');
@@ -327,6 +333,13 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
               <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-xs text-green-800 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 shrink-0" />
                 <span>{translateSuccess}</span>
+              </div>
+            )}
+
+            {translateWarning && (
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                <span>{translateWarning}</span>
               </div>
             )}
 

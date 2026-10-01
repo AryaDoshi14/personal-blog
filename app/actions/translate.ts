@@ -15,6 +15,7 @@ export interface TranslatePostResult {
     excerpt_en: string;
     content_en: string;
   };
+  warning?: string;
   error?: string;
 }
 
@@ -31,7 +32,15 @@ export interface TranslatePrayerResult {
     subtitle_en: string;
     content_en: string;
   };
+  warning?: string;
   error?: string;
+}
+
+class NonRetryableError extends Error {
+  constructor(message: string, public readonly tryNextModel = false) {
+    super(message);
+    this.name = 'NonRetryableError';
+  }
 }
 
 const SYSTEM_INSTRUCTION = `
@@ -54,11 +63,9 @@ function sleep(ms: number) {
 
 function cleanJsonResponse(rawText: string): string {
   let cleaned = rawText.trim();
-  // Strip opening markdown code fence if present
   if (cleaned.startsWith('```')) {
     cleaned = cleaned.replace(/^```(?:json)?\s*/i, '');
   }
-  // Strip closing code fence
   if (cleaned.endsWith('```')) {
     cleaned = cleaned.replace(/```\s*$/, '');
   }
@@ -70,6 +77,43 @@ function extractImageSources(html: string): string[] {
   return Array.from(matches, (m) => m[1]);
 }
 
+function extractLinkHrefs(html: string): string[] {
+  const matches = html.matchAll(/<a[^>]+href=["']([^"']+)["']/gi);
+  return Array.from(matches, (m) => m[1]);
+}
+
+function verifyHtmlIntegrity(guHtml: string, enHtml: string): string | undefined {
+  const warnings: string[] = [];
+
+  // 1. Check images
+  const guImages = extractImageSources(guHtml);
+  const enImages = extractImageSources(enHtml);
+  const missingImages = guImages.filter((src) => !enImages.includes(src));
+  if (missingImages.length > 0) {
+    warnings.push(`${missingImages.length} image(s) from the original content may be missing or have modified URLs.`);
+  }
+
+  // 2. Check hyperlinks
+  const guLinks = extractLinkHrefs(guHtml);
+  const enLinks = extractLinkHrefs(enHtml);
+  const missingLinks = guLinks.filter((href) => !enLinks.includes(href));
+  if (missingLinks.length > 0) {
+    warnings.push(`${missingLinks.length} hyperlink(s) may be missing in the translation.`);
+  }
+
+  // 3. Check major structural elements
+  const structuralTags = ['h2', 'h3', 'blockquote', 'ul', 'ol'];
+  for (const tag of structuralTags) {
+    const guCount = (guHtml.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const enCount = (enHtml.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    if (guCount > 0 && enCount === 0) {
+      warnings.push(`Original <${tag}> structure was omitted in English.`);
+    }
+  }
+
+  return warnings.length > 0 ? warnings.join(' ') : undefined;
+}
+
 async function callGeminiSingleModel(
   model: string,
   apiKey: string,
@@ -77,6 +121,19 @@ async function callGeminiSingleModel(
   schemaDescription: string
 ): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.3,
+    response_mime_type: 'application/json',
+    maxOutputTokens: 16384,
+  };
+
+  // Only pass thinkingConfig for Gemini 2.5 models to prevent 400 Bad Request on older/other models
+  if (model.toLowerCase().includes('2.5')) {
+    generationConfig.thinkingConfig = {
+      thinkingBudget: 0,
+    };
+  }
 
   const requestBody = {
     system_instruction: {
@@ -92,15 +149,7 @@ async function callGeminiSingleModel(
         ],
       },
     ],
-    generationConfig: {
-      temperature: 0.3,
-      response_mime_type: 'application/json',
-      maxOutputTokens: 8192,
-      // Disable internal thinking tokens to preserve full output budget for translations
-      thinkingConfig: {
-        thinkingBudget: 0,
-      },
-    },
+    generationConfig,
   };
 
   let lastError: Error | null = null;
@@ -126,6 +175,16 @@ async function callGeminiSingleModel(
           parsedMessage = errorText || response.statusText;
         }
 
+        // Model not found or bad request for specific model parameters should fail this model and try fallback
+        if (response.status === 400 || response.status === 404) {
+          throw new NonRetryableError(`Gemini error (${response.status}) on ${model}: ${parsedMessage}`, true);
+        }
+
+        // Authentication/authorization errors should abort without trying fallback models
+        if (response.status === 401 || response.status === 403) {
+          throw new NonRetryableError(`Gemini error (${response.status}) on ${model}: ${parsedMessage}`);
+        }
+
         // Retry transient errors (429 rate limit or 5xx server issues)
         if ((response.status === 429 || response.status >= 500) && attempt < RETRY_ATTEMPTS) {
           await sleep(RETRY_DELAY_MS * attempt);
@@ -140,12 +199,12 @@ async function callGeminiSingleModel(
 
       // Check finishReason for truncation or safety filters
       if (candidate?.finishReason === 'MAX_TOKENS') {
-        throw new Error(
-          'The translation was truncated because the article exceeded the maximum token limit. Please try translating in smaller sections or shortening the content.'
+        throw new NonRetryableError(
+          'The translation was truncated because the article is too long. Please shorten the article or translate it in parts.'
         );
       }
       if (candidate?.finishReason === 'SAFETY') {
-        throw new Error('The translation request was stopped by Gemini safety filters.');
+        throw new NonRetryableError('The translation request was stopped by Gemini safety filters.');
       }
 
       const parts = candidate?.content?.parts || [];
@@ -160,8 +219,12 @@ async function callGeminiSingleModel(
 
       return cleanJsonResponse(textOutput);
     } catch (err) {
+      if (err instanceof NonRetryableError) {
+        throw err;
+      }
+
       lastError = err instanceof Error ? err : new Error(String(err));
-      // If not transient or last attempt, fail out to next model
+      // Retry transient network/fetch errors
       if (attempt < RETRY_ATTEMPTS) {
         await sleep(RETRY_DELAY_MS * attempt);
       }
@@ -178,14 +241,14 @@ async function callGemini(prompt: string, schemaDescription: string): Promise<st
     process.env.GOOGLE_AI_API_KEY;
 
   if (!apiKey) {
-    throw new Error(
+    throw new NonRetryableError(
       'Gemini API Key is not configured. Please set GEMINI_API_KEY in your environment configuration.'
     );
   }
 
-  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
   // Fallback model list if the primary model fails or is unavailable
-  const candidateModels = [primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash'].filter(
+  const candidateModels = [primaryModel, 'gemini-2.5-flash', 'gemini-3.1-flash-lite'].filter(
     (val, idx, arr) => arr.indexOf(val) === idx
   );
 
@@ -195,12 +258,9 @@ async function callGemini(prompt: string, schemaDescription: string): Promise<st
       return await callGeminiSingleModel(model, apiKey, prompt, schemaDescription);
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
-      // If it's a token truncation or safety error, don't retry other models needlessly
-      if (
-        lastError.message.includes('token limit') ||
-        lastError.message.includes('safety filters')
-      ) {
-        throw lastError;
+      // Non-retryable errors (e.g. auth, bad key, MAX_TOKENS, SAFETY) should stop immediately unless tryNextModel is set
+      if (err instanceof NonRetryableError && !err.tryNextModel) {
+        throw err;
       }
       console.warn(`Gemini model ${model} failed, attempting next fallback model...`, lastError.message);
     }
@@ -248,14 +308,18 @@ ${input.content_gu || ''}
 }`;
 
     const rawResult = await callGemini(prompt, schemaDescription);
-    const parsed = JSON.parse(rawResult);
-
-    // Verify image tags were preserved
-    const guImages = extractImageSources(input.content_gu || '');
-    const enImages = extractImageSources(parsed.content_en || '');
-    if (guImages.length > 0 && enImages.length < guImages.length) {
-      console.warn('Some images from Gujarati content may have been omitted during translation.');
+    let parsed: { title_en?: string; excerpt_en?: string; content_en?: string };
+    try {
+      parsed = JSON.parse(rawResult);
+    } catch (parseErr) {
+      console.error('Failed to parse Gemini JSON output:', rawResult, parseErr);
+      return {
+        success: false,
+        error: 'Gemini returned an invalid formatted response. Please try again.',
+      };
     }
+
+    const warning = verifyHtmlIntegrity(input.content_gu || '', parsed.content_en || '');
 
     return {
       success: true,
@@ -264,6 +328,7 @@ ${input.content_gu || ''}
         excerpt_en: parsed.excerpt_en || '',
         content_en: parsed.content_en || '',
       },
+      warning,
     };
   } catch (err) {
     console.error('translatePostFields error:', err);
@@ -318,14 +383,23 @@ ${input.content_gu || ''}
 }`;
 
     const rawResult = await callGemini(prompt, schemaDescription);
-    const parsed = JSON.parse(rawResult);
+    let parsed: { title_en?: string; subtitle_en?: string; content_en?: string };
+    try {
+      parsed = JSON.parse(rawResult);
+    } catch (parseErr) {
+      console.error('Failed to parse Gemini JSON output:', rawResult, parseErr);
+      return {
+        success: false,
+        error: 'Gemini returned an invalid formatted response. Please try again.',
+      };
+    }
 
     return {
       success: true,
       data: {
         title_en: parsed.title_en || '',
         subtitle_en: parsed.subtitle_en || '',
-        content_en: (parsed.content_en || '').replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n'),
+        content_en: parsed.content_en || '',
       },
     };
   } catch (err) {

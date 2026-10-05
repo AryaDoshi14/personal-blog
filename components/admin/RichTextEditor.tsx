@@ -86,6 +86,12 @@ export default function RichTextEditor({
     },
   });
 
+  React.useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '', { emitUpdate: false });
+    }
+  }, [content, editor]);
+
   if (!editor) {
     return (
       <div className="border border-gold-primary/30 rounded-2xl p-6 bg-cream-surface/30 min-h-[200px] flex items-center justify-center text-maroon-primary/60 text-sm">

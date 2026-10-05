@@ -13,6 +13,8 @@ interface HomePageProps {
   }>;
 }
 
+export const revalidate = 300;
+
 export default async function HomePage({ params }: HomePageProps) {
   const { lang } = await params;
 

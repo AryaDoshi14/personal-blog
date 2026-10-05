@@ -11,6 +11,8 @@ interface PrayersPageProps {
   }>;
 }
 
+export const revalidate = 300;
+
 export default async function PrayersPage({ params }: PrayersPageProps) {
   const { lang } = await params;
 

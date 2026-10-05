@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createPublicSupabaseClient } from '@/lib/supabase/public';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
 import {
@@ -14,7 +15,7 @@ import { Category, Comment, Post, Prayer, SiteSettings } from '@/types';
 // ==============================================================================
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return DEFAULT_SITE_SETTINGS;
 
     const { data, error } = await supabase.from('site_settings').select('key, value_gu, value_en');
@@ -85,7 +86,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 // ==============================================================================
 export async function getCategories(): Promise<Category[]> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return DEFAULT_CATEGORIES;
 
     const { data, error } = await supabase
@@ -110,7 +111,7 @@ export async function getCategories(): Promise<Category[]> {
 // ==============================================================================
 export async function getPrayers(): Promise<Prayer[]> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return DEFAULT_PRAYERS;
 
     const { data, error } = await supabase
@@ -132,7 +133,7 @@ export async function getPrayers(): Promise<Prayer[]> {
 
 export async function getPrayerBySlug(slug: string): Promise<Prayer | null> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) {
       return DEFAULT_PRAYERS.find((p) => p.slug === slug) || null;
     }
@@ -173,7 +174,7 @@ export async function getPublishedPosts(options?: {
   search?: string;
 }): Promise<Post[]> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     const rawSearch = options?.search?.trim();
 
     if (!supabase) {
@@ -254,7 +255,7 @@ export async function getPublishedPosts(options?: {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) {
       return DEFAULT_POSTS.find((p) => p.slug === slug) || null;
     }
@@ -287,7 +288,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 // ==============================================================================
 export async function getApprovedComments(postId: string): Promise<Comment[]> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return [];
 
     // Attempt RPC call (SECURITY DEFINER, selects full_name and avatar_url only - never email/role)

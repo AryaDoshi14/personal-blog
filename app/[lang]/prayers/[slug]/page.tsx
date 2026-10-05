@@ -7,7 +7,18 @@ import { OrnamentalDivider } from '@/components/ui/OrnamentalDivider';
 import { getPrayerBySlug, getPrayers } from '@/lib/db';
 import { Language } from '@/types';
 
-export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const prayers = await getPrayers();
+  const params: { lang: string; slug: string }[] = [];
+  for (const prayer of prayers) {
+    params.push({ lang: 'gu', slug: prayer.slug });
+    params.push({ lang: 'en', slug: prayer.slug });
+  }
+  return params;
+}
 
 interface PrayerDetailPageProps {
   params: Promise<{

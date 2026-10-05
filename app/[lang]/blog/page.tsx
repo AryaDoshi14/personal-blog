@@ -10,14 +10,12 @@ interface BlogPageProps {
   params: Promise<{
     lang: string;
   }>;
-  searchParams: Promise<{
-    q?: string;
-  }>;
 }
 
-export default async function BlogPage({ params, searchParams }: BlogPageProps) {
+export const revalidate = 300;
+
+export default async function BlogPage({ params }: BlogPageProps) {
   const { lang } = await params;
-  const { q } = await searchParams;
 
   if (lang !== 'gu' && lang !== 'en') {
     notFound();
@@ -25,10 +23,9 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
 
   const validLang = lang as Language;
   const isGu = validLang === 'gu';
-  const search = (q || '').trim();
 
   const [posts, categories, settings] = await Promise.all([
-    getPublishedPosts({ search: search || undefined }),
+    getPublishedPosts(),
     getCategories(),
     getSiteSettings(),
   ]);
@@ -49,7 +46,6 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
           posts={posts}
           categories={categories}
           lang={validLang}
-          initialSearch={search}
         />
 
         <div className="mt-16 max-w-2xl mx-auto">

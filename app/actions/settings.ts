@@ -106,9 +106,15 @@ export async function updateSiteSettings(formData: FormData): Promise<SettingsAc
     }
   }
 
-  revalidatePath('/');
+  revalidatePath('/', 'layout');
   revalidatePath('/gu');
   revalidatePath('/en');
+  revalidatePath('/gu/tradition');
+  revalidatePath('/en/tradition');
+  revalidatePath('/gu/contact');
+  revalidatePath('/en/contact');
+  revalidatePath('/gu/blog');
+  revalidatePath('/en/blog');
   revalidatePath('/admin');
   revalidatePath('/admin/settings');
 

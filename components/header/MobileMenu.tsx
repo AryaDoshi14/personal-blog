@@ -3,22 +3,63 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, LogOut, LogIn, UserPlus, LayoutDashboard } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Language } from '@/types';
+import { Language, Profile } from '@/types';
 import { publicSignOut } from '@/app/actions/public-auth';
+import { createClient } from '@/lib/supabase/client';
 
 interface MobileMenuProps {
   lang: Language;
   siteName: string;
   logoUrl?: string;
-  /** Pass the display name of a logged-in non-admin viewer. Null/undefined = guest. */
+  /** Optional override for user display name */
   userDisplayName?: string | null;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, logoUrl, userDisplayName }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [clientProfile, setClientProfile] = useState<Profile | null>(null);
   const isGu = lang === 'gu';
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    let isMounted = true;
+    async function loadViewer() {
+      try {
+        const { data: { user } } = await supabase!.auth.getUser();
+        if (user && isMounted) {
+          const { data } = await supabase!
+            .from('profiles')
+            .select('id, role, full_name, email, avatar_url, created_at, updated_at')
+            .eq('id', user.id)
+            .maybeSingle();
+          if (isMounted) setClientProfile((data as Profile) || null);
+        } else if (isMounted) {
+          setClientProfile(null);
+        }
+      } catch {
+        if (isMounted) setClientProfile(null);
+      }
+    }
+
+    loadViewer();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadViewer();
+      } else if (isMounted) {
+        setClientProfile(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -33,6 +74,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, logoUrl,
     { href: `/${lang}/blog`, labelGu: 'મારા લેખો', labelEn: 'My Articles' },
     { href: `/${lang}/contact`, labelGu: 'સંપર્ક', labelEn: 'Contact' },
   ];
+
+  const effectiveDisplayName =
+    userDisplayName ||
+    (clientProfile?.full_name?.trim() || (clientProfile?.role === 'viewer' ? (isGu ? 'ભક્ત' : 'Devotee') : null));
+  const isAdmin = clientProfile?.role === 'admin';
 
   if (!isOpen) {
     return (
@@ -125,11 +171,23 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, logoUrl,
             {/* Auth section separator */}
             <div className="my-3 border-t border-[#E8DFD3]" />
 
-            {userDisplayName ? (
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-[#501518] text-white font-semibold"
+                style={{ fontFamily: 'var(--font-noto-serif-gujarati), serif', fontSize: '16px' }}
+              >
+                <LayoutDashboard className="w-4 h-4 text-[#C59B4B]" />
+                {isGu ? 'એડ્મિન પેનલ' : 'Admin Panel'}
+              </Link>
+            )}
+
+            {clientProfile || effectiveDisplayName ? (
               /* Signed-in user */
               <>
                 <div className="px-4 py-2 text-xs text-[#8C6D2D] font-serif-gu">
-                  {isGu ? 'ભક્ત:' : 'Signed in as:'} <strong>{userDisplayName}</strong>
+                  {isGu ? 'ભક્ત:' : 'Signed in as:'} <strong>{effectiveDisplayName}</strong>
                 </div>
                 <form
                   action={async () => {
@@ -138,7 +196,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ lang, siteName, logoUrl,
                 >
                   <button
                     type="submit"
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[#501518] hover:bg-[#FAF6F0] font-serif-gu font-semibold"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[#501518] hover:bg-[#FAF6F0] font-serif-gu font-semibold cursor-pointer"
                     style={{ fontSize: '16px' }}
                   >
                     <LogOut className="w-4 h-4 text-[#C59B4B]" />

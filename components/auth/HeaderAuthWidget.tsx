@@ -1,33 +1,73 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getCurrentViewer } from '@/lib/supabase/viewer';
+import { createClient } from '@/lib/supabase/client';
 import { Language, Profile } from '@/types';
 import { UserDropdown } from './UserDropdown';
 import { LayoutDashboard } from 'lucide-react';
 
-
 interface HeaderAuthWidgetProps {
   lang: Language;
-  profile?: Profile | null;
 }
 
 /**
- * Server component that reads the current session and renders either:
- * - A "Login / Sign up" link pair (unauthenticated)
- * - An "Admin Panel" link (admin user)
- * - A user avatar + name dropdown (authenticated viewer)
+ * Client component that checks the viewer session in the browser after mount.
+ * Keeps server rendering of public layouts 100% static and cookie-free.
  */
-export async function HeaderAuthWidget({ lang, profile: passedProfile }: HeaderAuthWidgetProps) {
+export function HeaderAuthWidget({ lang }: HeaderAuthWidgetProps) {
   const isGu = lang === 'gu';
-  let profile = passedProfile;
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  if (profile === undefined) {
-    const viewer = await getCurrentViewer();
-    profile = viewer.profile;
-  }
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) {
+      return;
+    }
 
-  // Unauthenticated visitor
-  if (!profile) {
+    let isMounted = true;
+
+    async function loadUser() {
+      try {
+        const { data: { user } } = await supabase!.auth.getUser();
+        if (user && isMounted) {
+          const { data } = await supabase!
+            .from('profiles')
+            .select('id, role, full_name, email, avatar_url, created_at, updated_at')
+            .eq('id', user.id)
+            .maybeSingle();
+          if (isMounted) {
+            setProfile((data as Profile) || null);
+          }
+        } else if (isMounted) {
+          setProfile(null);
+        }
+      } catch {
+        if (isMounted) setProfile(null);
+      } finally {
+        if (isMounted) setIsLoaded(true);
+      }
+    }
+
+    loadUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUser();
+      } else if (isMounted) {
+        setProfile(null);
+        setIsLoaded(true);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  if (!isLoaded || !profile) {
     return <GuestLinks lang={lang} isGu={isGu} />;
   }
 
@@ -65,4 +105,3 @@ function GuestLinks({ lang, isGu }: { lang: Language; isGu: boolean }) {
     </div>
   );
 }
-

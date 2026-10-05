@@ -1,24 +1,25 @@
 'use client';
 
-import React, { useOptimistic, useState, useTransition } from 'react';
+import React, { useEffect, useOptimistic, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
 import { togglePostLike } from '@/app/actions/likes';
+import { createClient } from '@/lib/supabase/client';
 import { Language } from '@/types';
 
 interface LikeButtonProps {
   postId: string;
   initialCount: number;
-  initialLiked: boolean;
-  isLoggedIn: boolean;
+  initialLiked?: boolean;
+  isLoggedIn?: boolean;
   lang: Language;
 }
 
 export function LikeButton({
   postId,
   initialCount,
-  initialLiked,
-  isLoggedIn,
+  initialLiked = false,
+  isLoggedIn: initialIsLoggedIn = false,
   lang,
 }: LikeButtonProps) {
   const isGu = lang === 'gu';
@@ -26,6 +27,52 @@ export function LikeButton({
   const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    let isMounted = true;
+    async function checkUserLike() {
+      try {
+        const { data: { user } } = await supabase!.auth.getUser();
+        if (user && isMounted) {
+          setIsLoggedIn(true);
+          const { data } = await supabase!
+            .from('post_likes')
+            .select('post_id')
+            .eq('post_id', postId)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (isMounted && data) {
+            setLiked(true);
+          }
+        } else if (isMounted) {
+          setIsLoggedIn(false);
+          setLiked(false);
+        }
+      } catch {
+        // Ignore background auth check errors
+      }
+    }
+
+    checkUserLike();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        checkUserLike();
+      } else if (isMounted) {
+        setIsLoggedIn(false);
+        setLiked(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [postId]);
 
   const [optimistic, setOptimistic] = useOptimistic(
     { liked, count },
@@ -59,7 +106,7 @@ export function LikeButton({
       >
         <Heart className="w-4 h-4 text-[#C59B4B]" />
         <span>
-          {initialCount} {isGu ? 'લાઇક' : 'likes'}
+          {optimistic.count} {isGu ? 'લાઇક' : 'likes'}
         </span>
         <span className="text-xs text-[#614D43]">
           · {isGu ? 'લાઇક કરવા લૉગિન કરો' : 'Log in to like'}

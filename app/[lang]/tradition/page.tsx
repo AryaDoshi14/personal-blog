@@ -12,6 +12,8 @@ interface TraditionPageProps {
   }>;
 }
 
+export const revalidate = 300;
+
 export default async function TraditionPage({ params }: TraditionPageProps) {
   const { lang } = await params;
 

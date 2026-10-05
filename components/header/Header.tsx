@@ -5,7 +5,6 @@ import { Language } from '@/types';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileMenu } from './MobileMenu';
 import { HeaderAuthWidget } from '@/components/auth/HeaderAuthWidget';
-import { getCurrentViewer } from '@/lib/supabase/viewer';
 
 interface HeaderProps {
   lang: Language;
@@ -13,7 +12,7 @@ interface HeaderProps {
   logoUrl?: string;
 }
 
-export const Header: React.FC<HeaderProps> = async ({ lang, siteName, logoUrl }) => {
+export const Header: React.FC<HeaderProps> = ({ lang, siteName, logoUrl }) => {
   const navLinks = [
     { href: `/${lang}`, labelGu: 'મુખ્ય પાનું', labelEn: 'Home' },
     { href: `/${lang}/prayers`, labelGu: 'પ્રાર્થનાઓ', labelEn: 'Prayers' },
@@ -21,13 +20,6 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName, logoUrl })
     { href: `/${lang}/blog`, labelGu: 'મારા લેખો', labelEn: 'My Articles' },
     { href: `/${lang}/contact`, labelGu: 'સંપર્ક', labelEn: 'Contact' },
   ];
-
-  // Single cached viewer lookup per request
-  const { profile } = await getCurrentViewer();
-  const mobileUserName =
-    profile && profile.role === 'viewer'
-      ? profile.full_name?.trim() || (lang === 'gu' ? 'ભક્ત' : 'Devotee')
-      : null;
 
   const resolvedLogo = logoUrl || '/images/defaults/logo-mandala.svg';
 
@@ -68,12 +60,12 @@ export const Header: React.FC<HeaderProps> = async ({ lang, siteName, logoUrl })
 
         {/* Desktop Language Switcher + Auth Widget */}
         <div className="hidden md:flex items-center gap-3">
-          <HeaderAuthWidget lang={lang} profile={profile} />
+          <HeaderAuthWidget lang={lang} />
           <LanguageSwitcher currentLang={lang} />
         </div>
 
         {/* Mobile Navigation Drawer */}
-        <MobileMenu lang={lang} siteName={siteName} userDisplayName={mobileUserName} logoUrl={resolvedLogo} />
+        <MobileMenu lang={lang} siteName={siteName} logoUrl={resolvedLogo} />
       </div>
     </header>
   );

@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2, Send, LogIn, UserPlus, X, MessageSquare } from 'lucide-react';
 import { createComment } from '@/app/actions/comments';
+import { createClient } from '@/lib/supabase/client';
 import { Language } from '@/types';
 
 interface CommentFormProps {
   postId: string;
   lang: Language;
-  isLoggedIn: boolean;
+  isLoggedIn?: boolean;
 }
 
-export function CommentForm({ postId, lang, isLoggedIn }: CommentFormProps) {
+export function CommentForm({ postId, lang, isLoggedIn: initialIsLoggedIn = false }: CommentFormProps) {
   const isGu = lang === 'gu';
   const router = useRouter();
   const [content, setContent] = useState('');
@@ -22,6 +23,33 @@ export function CommentForm({ postId, lang, isLoggedIn }: CommentFormProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    let isMounted = true;
+    async function checkAuth() {
+      try {
+        const { data: { user } } = await supabase!.auth.getUser();
+        if (isMounted) setIsLoggedIn(Boolean(user));
+      } catch {
+        if (isMounted) setIsLoggedIn(false);
+      }
+    }
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (isMounted) setIsLoggedIn(Boolean(session?.user));
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +116,7 @@ export function CommentForm({ postId, lang, isLoggedIn }: CommentFormProps) {
               {/* Close */}
               <button
                 onClick={() => setShowSignInModal(false)}
-                className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-[#F4EDE2] text-[#614D43] transition-colors"
+                className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-[#F4EDE2] text-[#614D43] transition-colors cursor-pointer"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -131,7 +159,7 @@ export function CommentForm({ postId, lang, isLoggedIn }: CommentFormProps) {
 
                   <button
                     onClick={() => setShowSignInModal(false)}
-                    className="text-xs text-[#8C6D2D] font-serif-gu hover:text-[#614D43] transition-colors mt-1"
+                    className="text-xs text-[#8C6D2D] font-serif-gu hover:text-[#614D43] transition-colors mt-1 cursor-pointer"
                   >
                     {isGu ? 'રદ કરો' : 'Maybe later'}
                   </button>

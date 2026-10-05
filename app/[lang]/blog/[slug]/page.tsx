@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Tag, ArrowLeft, User } from 'lucide-react';
-import { headers } from 'next/headers';
 import { OrnamentalDivider } from '@/components/ui/OrnamentalDivider';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { AboutAuthor } from '@/components/blog/AboutAuthor';
@@ -18,11 +17,20 @@ import {
   getApprovedComments,
 } from '@/lib/db';
 import { sanitizeHtml } from '@/lib/sanitize';
-import { getUserLikedPost } from '@/app/actions/likes';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { Language } from '@/types';
 
-export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const posts = await getPublishedPosts();
+  const params: { lang: string; slug: string }[] = [];
+  for (const post of posts) {
+    params.push({ lang: 'gu', slug: post.slug });
+    params.push({ lang: 'en', slug: post.slug });
+  }
+  return params;
+}
 
 interface PostDetailPageProps {
   params: Promise<{
@@ -58,29 +66,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     ? post.author_name_gu
     : post.author_name_en || post.author_name_gu;
 
-  const [allPosts, settings, comments, initialLiked] = await Promise.all([
+  const [allPosts, settings, comments] = await Promise.all([
     getPublishedPosts({ limit: 4 }),
     getSiteSettings(),
     getApprovedComments(post.id),
-    getUserLikedPost(post.id),
   ]);
   const relatedPosts = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
-  const supabase = await createServerSupabaseClient();
-  let isLoggedIn = false;
-  if (supabase) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    isLoggedIn = Boolean(user);
-  }
-
-  const headerList = await headers();
-  const host = headerList.get('x-forwarded-host') || headerList.get('host') || '';
-  const proto = headerList.get('x-forwarded-proto') || 'https';
-  const shareUrl = host
-    ? `${proto}://${host}/${lang}/blog/${slug}`
-    : `/${lang}/blog/${slug}`;
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://shreejibabakrupa.com').replace(/\/$/, '');
+  const shareUrl = `${baseUrl}/${lang}/blog/${slug}`;
 
   const formattedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString(isGu ? 'gu-IN' : 'en-US', {
@@ -182,8 +176,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           <LikeButton
             postId={post.id}
             initialCount={post.likes_count || 0}
-            initialLiked={initialLiked}
-            isLoggedIn={isLoggedIn}
             lang={validLang}
           />
           <ShareButtons title={title} url={shareUrl} lang={validLang} />
@@ -201,7 +193,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             <span className="text-sm font-normal text-[#614D43]">({comments.length})</span>
           </h2>
           <CommentList comments={comments} lang={validLang} />
-          <CommentForm postId={post.id} lang={validLang} isLoggedIn={isLoggedIn} />
+          <CommentForm postId={post.id} lang={validLang} />
         </section>
 
         <div className="my-12 p-6 rounded-2xl bg-gradient-to-r from-[#FAF6F0] via-[#F4EDE2] to-[#FAF6F0] border border-[#C59B4B]/40 text-center shadow-xs">

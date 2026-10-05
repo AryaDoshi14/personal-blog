@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useActionState, useEffect, useState } from 'react';
+import React, { useActionState, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { publicSignIn } from '@/app/actions/public-auth';
@@ -15,22 +15,17 @@ export function LoginForm({ lang }: LoginFormProps) {
   const isGu = lang === 'gu';
   const router = useRouter();
   const [state, action, isPending] = useActionState(publicSignIn, null);
-  const [showAdminPopup, setShowAdminPopup] = useState(false);
+  const [dismissedAdminPopup, setDismissedAdminPopup] = useState(false);
 
-  // When server returns isAdmin: true, open the destination popup
-  useEffect(() => {
-    if ((state as { isAdmin?: boolean } | null)?.isAdmin) {
-      setShowAdminPopup(true);
-    }
-  }, [state]);
+  const showAdminPopup = Boolean((state as { isAdmin?: boolean } | null)?.isAdmin && !dismissedAdminPopup);
 
   const handleGoAdmin = () => {
-    setShowAdminPopup(false);
+    setDismissedAdminPopup(true);
     router.push('/admin');
   };
 
   const handleGoNormal = () => {
-    setShowAdminPopup(false);
+    setDismissedAdminPopup(true);
     router.push(`/${lang}`);
   };
 

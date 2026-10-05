@@ -12,6 +12,8 @@ interface ContactPageProps {
   }>;
 }
 
+export const revalidate = 300;
+
 export default async function ContactPage({ params }: ContactPageProps) {
   const { lang } = await params;
 

@@ -1,4 +1,4 @@
-# શ્રીજી બાબાની કૃપા (Shreeji Baba Ni Krupa)
+# શ્રીજી બાવાાની કૃપા (Shreeji Bava Ni Krupa)
 ### A Production-Quality, Mobile-First Gujarati Devotional & Blog Platform
 
 A devotional web application built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and **Supabase (PostgreSQL, Auth & Storage)**. Designed faithfully according to traditional Gujarati Vaishnav heritage aesthetics featuring warm ivory/cream tones, deep maroon/burgundy (`#501518`), muted gold, delicate floral & lotus motifs, and authentic Gujarati typography (`Noto Serif Gujarati` & `Noto Sans Gujarati`).

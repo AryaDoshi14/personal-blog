@@ -11,6 +11,11 @@ const supabaseHostname = (() => {
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['isomorphic-dompurify', 'jsdom'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '6mb',
+    },
+  },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

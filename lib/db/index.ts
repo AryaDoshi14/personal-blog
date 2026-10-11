@@ -360,11 +360,9 @@ export async function getAllCommentsForAdmin(): Promise<Comment[]> {
     const client = admin || (await createServerSupabaseClient());
     if (!client) return [];
 
-    const { data, error } = await client
+    const { data: comments, error } = await client
       .from('comments')
-      .select(
-        '*, user:profiles(id, role, email, full_name, avatar_url, created_at, updated_at), post:posts(id, slug, title_gu, title_en)'
-      )
+      .select('*, post:posts(id, slug, title_gu, title_en)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -372,7 +370,26 @@ export async function getAllCommentsForAdmin(): Promise<Comment[]> {
       return [];
     }
 
-    return (data || []) as Comment[];
+    if (!comments || comments.length === 0) {
+      return [];
+    }
+
+    const userIds = Array.from(new Set(comments.map((c) => c.user_id).filter(Boolean)));
+    let profilesMap: Record<string, import('@/types').Profile> = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await client
+        .from('profiles')
+        .select('id, role, email, full_name, avatar_url, created_at, updated_at')
+        .in('id', userIds);
+      if (profiles) {
+        profilesMap = Object.fromEntries(profiles.map((p) => [p.id, p as import('@/types').Profile]));
+      }
+    }
+
+    return comments.map((c) => ({
+      ...c,
+      user: profilesMap[c.user_id] || null,
+    })) as Comment[];
   } catch (err) {
     console.error('Error in getAllCommentsForAdmin:', err);
     return [];

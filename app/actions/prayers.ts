@@ -151,7 +151,7 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
     .eq('id', id)
     .single();
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('prayers')
     .update({
       slug: data.slug,
@@ -165,10 +165,15 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
       order_index: data.order_index,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .select('id');
 
   if (updateError) {
     return { success: false, error: updateError.message };
+  }
+
+  if (!updated?.length) {
+    return { success: false, error: 'Prayer not found or not saved.' };
   }
 
   revalidatePath('/');

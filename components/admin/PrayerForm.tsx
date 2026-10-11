@@ -36,7 +36,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
   const [iconType, setIconType] = useState<'flute' | 'lotus' | 'peacock' | 'namaste'>(
     initialData?.icon_type || 'namaste'
   );
-  const [orderIndex, setOrderIndex] = useState(initialData?.order_index || 1);
+  const [orderIndex, setOrderIndex] = useState(initialData?.order_index ?? 1);
 
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -69,6 +69,21 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
     if (!titleGu.trim() && !contentGu.trim()) {
       setTranslateError('કૃપા કરીને પહેલા ગુજરાતી સ્તુતિનું શીર્ષક અથવા લખાણ લખો. (Please write Gujarati title or prayer text first.)');
       return;
+    }
+
+    const hasEnglishContent = Boolean(
+      titleEn.trim() ||
+      subtitleEn.trim() ||
+      contentEn.trim()
+    );
+
+    if (hasEnglishContent) {
+      const confirmOverwrite = window.confirm(
+        'અંગ્રેજી ક્ષેત્રોમાં પહેલેથી જ માહિતી દાખલ કરેલી છે. આપોઆપ અનુવાદ કરવાથી આ વિગતો બદલાઈ જશે. શું તમે આગળ વધવા માંગો છો?\n\n(English fields already contain content. Auto-translating will overwrite your manual edits. Do you want to continue?)'
+      );
+      if (!confirmOverwrite) {
+        return;
+      }
     }
 
     setIsTranslating(true);

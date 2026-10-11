@@ -103,6 +103,21 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
       return;
     }
 
+    const hasEnglishContent = Boolean(
+      titleEn.trim() ||
+      excerptEn.trim() ||
+      (contentEn.trim() && contentEn !== '<p></p>')
+    );
+
+    if (hasEnglishContent) {
+      const confirmOverwrite = window.confirm(
+        'અંગ્રેજી ક્ષેત્રોમાં પહેલેથી જ માહિતી દાખલ કરેલી છે. આપોઆપ અનુવાદ કરવાથી આ વિગતો બદલાઈ જશે. શું તમે આગળ વધવા માંગો છો?\n\n(English fields already contain content. Auto-translating will overwrite your manual edits. Do you want to continue?)'
+      );
+      if (!confirmOverwrite) {
+        return;
+      }
+    }
+
     setIsTranslating(true);
     try {
       const result = await translatePostFields({
@@ -174,6 +189,16 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
       return;
     }
 
+    if (!excerptGu || excerptGu.trim().length === 0) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        excerpt_gu: ['Gujarati excerpt is required.'],
+      }));
+      setActiveTab('gu');
+      setGeneralError('ગુજરાતી સારાંશ (Excerpt) આવશ્યક છે.');
+      return;
+    }
+
     if (!contentGu || contentGu.trim().length === 0 || contentGu === '<p></p>') {
       setFieldErrors((prev) => ({
         ...prev,
@@ -212,12 +237,28 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
         setGeneralError(result.error || 'Failed to save post');
         if (result.fieldErrors) {
           setFieldErrors(result.fieldErrors);
+          if (
+            result.fieldErrors.title_gu ||
+            result.fieldErrors.excerpt_gu ||
+            result.fieldErrors.content_gu
+          ) {
+            setActiveTab('gu');
+          } else if (
+            result.fieldErrors.title_en ||
+            result.fieldErrors.excerpt_en ||
+            result.fieldErrors.content_en
+          ) {
+            setActiveTab('en');
+          }
         }
       } else {
         setStatus(targetStatus);
+        const isEditingPublished = initialData?.status === 'published' && targetStatus === 'published';
         setSuccessMessage(
           targetStatus === 'published'
-            ? 'લેખ સફળતાપૂર્વક પ્રકાશિત થયો છે! (Post published successfully)'
+            ? isEditingPublished
+              ? 'લેખ સફળતાપૂર્વક અપડેટ થયો છે! (Post updated successfully)'
+              : 'લેખ સફળતાપૂર્વક પ્રકાશિત થયો છે! (Post published successfully)'
             : 'ડ્રાફ્ટ સુરક્ષિત રીતે સાચવવામાં આવ્યો છે. (Draft saved successfully)'
         );
 
@@ -254,7 +295,7 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
           </div>
         </div>
 
-        {/* Action Buttons Group (Requirement 7: Save Draft, Publish, Unpublish, Preview, Cancel) */}
+        {/* Action Buttons Group */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Cancel */}
           <Link
@@ -274,47 +315,77 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
             પૂર્વાવલોકન (Preview)
           </button>
 
-          {/* Save Draft */}
-          <button
-            type="button"
-            onClick={() => handleSubmitWithStatus('draft')}
-            disabled={isPending}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-maroon-primary bg-gold-primary/20 hover:bg-gold-primary/30 border border-gold-primary/50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-maroon-primary" />}
-            ડ્રાફ્ટ સાચવો (Save Draft)
-          </button>
-
-          {/* Publish / Unpublish */}
+          {/* Published vs Draft action buttons */}
           {status === 'published' ? (
-            <button
-              type="button"
-              onClick={() => handleSubmitWithStatus('draft')}
-              disabled={isPending}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 transition-colors flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <FileDown className="w-4 h-4" />
-              અપ્રકાશિત કરો (Unpublish)
-            </button>
+            <>
+              {/* Update Published Post */}
+              <button
+                type="button"
+                onClick={() => handleSubmitWithStatus('published')}
+                disabled={isPending}
+                className="px-5 py-2 rounded-xl text-xs font-semibold text-cream-base bg-maroon-primary hover:bg-maroon-dark border border-gold-primary/40 shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-gold-light" />}
+                અપડેટ કરો (Update)
+              </button>
+
+              {/* Unpublish to Draft */}
+              <button
+                type="button"
+                onClick={() => handleSubmitWithStatus('draft')}
+                disabled={isPending}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+                અપ્રકાશિત કરો (Unpublish)
+              </button>
+            </>
           ) : (
-            <button
-              type="button"
-              onClick={() => handleSubmitWithStatus('published')}
-              disabled={isPending}
-              className="px-5 py-2 rounded-xl text-xs font-semibold text-cream-base bg-maroon-primary hover:bg-maroon-dark border border-gold-primary/40 shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
-            >
-              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 text-gold-light" />}
-              પ્રકાશિત કરો (Publish)
-            </button>
+            <>
+              {/* Save Draft */}
+              <button
+                type="button"
+                onClick={() => handleSubmitWithStatus('draft')}
+                disabled={isPending}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-maroon-primary bg-gold-primary/20 hover:bg-gold-primary/30 border border-gold-primary/50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-maroon-primary" />}
+                ડ્રાફ્ટ સાચવો (Save Draft)
+              </button>
+
+              {/* Publish */}
+              <button
+                type="button"
+                onClick={() => handleSubmitWithStatus('published')}
+                disabled={isPending}
+                className="px-5 py-2 rounded-xl text-xs font-semibold text-cream-base bg-maroon-primary hover:bg-maroon-dark border border-gold-primary/40 shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 text-gold-light" />}
+                પ્રકાશિત કરો (Publish)
+              </button>
+            </>
           )}
         </div>
       </div>
 
       {/* Notifications */}
       {generalError && (
-        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-          <span>{generalError}</span>
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex flex-col gap-2">
+          <div className="flex items-center gap-2.5 font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>{generalError}</span>
+          </div>
+          {Object.keys(fieldErrors).length > 0 && (
+            <ul className="list-disc list-inside ml-6 space-y-0.5 text-[11px] text-red-600">
+              {Object.entries(fieldErrors).flatMap(([field, msgs]) =>
+                msgs.map((m, i) => (
+                  <li key={`${field}-${i}`}>
+                    <span className="font-semibold">{field}</span>: {m}
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
         </div>
       )}
 
@@ -537,6 +608,9 @@ export default function PostForm({ initialData, categories }: PostFormProps) {
                   </option>
                 ))}
               </select>
+              {fieldErrors.category_id && (
+                <p className="text-xs text-red-600 mt-1 font-medium">{fieldErrors.category_id[0]}</p>
+              )}
             </div>
 
             {/* Tags */}

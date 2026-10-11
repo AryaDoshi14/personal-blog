@@ -56,6 +56,7 @@ export default function RichTextEditor({
         heading: { levels: [2, 3] },
         blockquote: false,
         horizontalRule: false,
+        link: false,
       }),
       Blockquote,
       HorizontalRule,

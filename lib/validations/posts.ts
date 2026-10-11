@@ -50,7 +50,7 @@ export const postFormSchema = z.object({
     .transform((v) => v || null),
   category_id: z
     .string()
-    .uuid('Invalid category')
+    .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, 'Invalid category')
     .optional()
     .or(z.literal(''))
     .transform((v) => v || null),

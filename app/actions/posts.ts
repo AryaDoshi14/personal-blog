@@ -198,7 +198,7 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
   const sanitizedContentGu = sanitizeHtml(data.content_gu);
   const sanitizedContentEn = data.content_en ? sanitizeHtml(data.content_en) : null;
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('posts')
     .update({
       slug: data.slug,
@@ -218,11 +218,16 @@ export async function updatePost(id: string, formData: FormData): Promise<PostAc
       author_name_en: data.author_name_en,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .select('id');
 
   if (updateError) {
     console.error('Update post error:', updateError);
     return { success: false, error: updateError.message };
+  }
+
+  if (!updated?.length) {
+    return { success: false, error: 'Post not found or not saved.' };
   }
 
   // Revalidate old and new paths

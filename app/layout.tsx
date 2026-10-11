@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: 'શ્રીજી બાબાની કૃપા | શ્રીનાથજી ભક્તિ, પરંપરા અને પવિત્ર પ્રાર્થનાઓ',
+  title: 'દિશાંત દોશી',
   description:
     'શ્રીજી બાબાની અપર કૃપાથી પ્રેરિત પુષ્ટિમાર્ગીય વૈષ્ણવ ભક્તિ, આધ્યાત્મિક વિચારો, પવિત્ર પ્રાર્થનાઓ અને પરંપરાનો દિવ્ય સંગમ.',
   keywords: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'શ્રીજી બાબાની કૃપા',
     description: 'શ્રીજી બાબાની અપર કૃપાથી પ્રેરિત પુષ્ટિમાર્ગીય વૈષ્ણવ ભક્તિ અને પવિત્ર પ્રાર્થનાઓ.',
-    url: 'https://shreejibabakrupa.com',
+    url: 'https://www.dishantdoshi.com/gu',
     siteName: 'શ્રીજી બાબાની કૃપા',
     images: [
       {

@@ -98,7 +98,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
               {/* Devotional Note */}
               <div className="mt-8 pt-6 border-t border-[#E8DFD3] text-center">
                 <p className="text-sm italic font-serif-gu text-[#8C6D2D]">
-                  || શ્રી કૃષ્ણ શરણં મમ: ||
+                  {isGu ? '|| શ્રી કૃષ્ણ શરણં મમ: ||' : '|| Shree Krushna Sharnam Mamah ||'}
                 </p>
               </div>
             </div>

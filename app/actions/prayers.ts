@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/supabase/admin-guard';
 import { prayerFormSchema } from '@/lib/validations/prayers';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export type PrayerActionResult = {
   success: boolean;
@@ -69,6 +70,9 @@ export async function createPrayer(formData: FormData): Promise<PrayerActionResu
     };
   }
 
+  const sanitizedContentGu = sanitizeHtml(data.content_gu);
+  const sanitizedContentEn = data.content_en ? sanitizeHtml(data.content_en) : null;
+
   const { data: newPrayer, error: insertError } = await supabase
     .from('prayers')
     .insert({
@@ -77,8 +81,8 @@ export async function createPrayer(formData: FormData): Promise<PrayerActionResu
       title_en: data.title_en,
       subtitle_gu: data.subtitle_gu,
       subtitle_en: data.subtitle_en,
-      content_gu: data.content_gu,
-      content_en: data.content_en,
+      content_gu: sanitizedContentGu,
+      content_en: sanitizedContentEn,
       icon_type: data.icon_type,
       order_index: data.order_index,
     })
@@ -151,6 +155,9 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
     .eq('id', id)
     .single();
 
+  const sanitizedContentGu = sanitizeHtml(data.content_gu);
+  const sanitizedContentEn = data.content_en ? sanitizeHtml(data.content_en) : null;
+
   const { data: updated, error: updateError } = await supabase
     .from('prayers')
     .update({
@@ -159,8 +166,8 @@ export async function updatePrayer(id: string, formData: FormData): Promise<Pray
       title_en: data.title_en,
       subtitle_gu: data.subtitle_gu,
       subtitle_en: data.subtitle_en,
-      content_gu: data.content_gu,
-      content_en: data.content_en,
+      content_gu: sanitizedContentGu,
+      content_en: sanitizedContentEn,
       icon_type: data.icon_type,
       order_index: data.order_index,
       updated_at: new Date().toISOString(),

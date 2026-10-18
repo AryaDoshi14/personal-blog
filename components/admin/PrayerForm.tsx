@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
 import BilingualTabs from './BilingualTabs';
+import RichTextEditor from './RichTextEditor';
 import { createPrayer, updatePrayer, type PrayerActionResult } from '@/app/actions/prayers';
 import { translatePrayerFields } from '@/app/actions/translate';
 import { Prayer } from '@/types';
@@ -19,7 +20,17 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
 
   const [activeTab, setActiveTab] = useState<'gu' | 'en'>('gu');
 
-  const normalizeText = (text?: string | null) => (text ? text.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n') : '');
+  const normalizeContent = (text?: string | null) => {
+    if (!text) return '';
+    const normalized = text.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+    if (/<[a-z][\s\S]*>/i.test(normalized)) {
+      return normalized;
+    }
+    return normalized
+      .split(/\n\n+/)
+      .map((p) => `<p>${p.replace(/\n/g, '<br />')}</p>`)
+      .join('');
+  };
 
   const [slug, setSlug] = useState(initialData?.slug || '');
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(Boolean(initialData?.slug));
@@ -30,8 +41,8 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
   const [subtitleGu, setSubtitleGu] = useState(initialData?.subtitle_gu || '');
   const [subtitleEn, setSubtitleEn] = useState(initialData?.subtitle_en || '');
 
-  const [contentGu, setContentGu] = useState(normalizeText(initialData?.content_gu));
-  const [contentEn, setContentEn] = useState(normalizeText(initialData?.content_en));
+  const [contentGu, setContentGu] = useState(normalizeContent(initialData?.content_gu));
+  const [contentEn, setContentEn] = useState(normalizeContent(initialData?.content_en));
 
   const [iconType, setIconType] = useState<'flute' | 'lotus' | 'peacock' | 'namaste'>(
     initialData?.icon_type || 'namaste'
@@ -99,7 +110,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
       } else {
         setTitleEn(result.data.title_en);
         setSubtitleEn(result.data.subtitle_en);
-        setContentEn(normalizeText(result.data.content_en));
+        setContentEn(normalizeContent(result.data.content_en));
 
         if (!isSlugManuallyEdited && !initialData && result.data.title_en) {
           const generated = result.data.title_en
@@ -146,7 +157,7 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
       return;
     }
 
-    if (!contentGu || contentGu.trim().length === 0) {
+    if (!contentGu || contentGu.trim().length === 0 || contentGu === '<p></p>') {
       setFieldErrors((prev) => ({
         ...prev,
         content_gu: ['Gujarati prayer content is required.'],
@@ -162,8 +173,10 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
       formData.append('title_en', titleEn.trim());
       formData.append('subtitle_gu', subtitleGu.trim());
       formData.append('subtitle_en', subtitleEn.trim());
-      formData.append('content_gu', contentGu);
-      formData.append('content_en', contentEn || '');
+      const cleanContentGu = !contentGu || contentGu === '<p></p>' ? '' : contentGu;
+      const cleanContentEn = !contentEn || contentEn === '<p></p>' ? '' : contentEn;
+      formData.append('content_gu', cleanContentGu);
+      formData.append('content_en', cleanContentEn);
       formData.append('icon_type', iconType);
       formData.append('order_index', String(orderIndex));
 
@@ -178,6 +191,11 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
         setGeneralError(result.error || 'Failed to save prayer');
         if (result.fieldErrors) {
           setFieldErrors(result.fieldErrors);
+          if (result.fieldErrors.title_gu || result.fieldErrors.content_gu) {
+            setActiveTab('gu');
+          } else if (result.fieldErrors.title_en || result.fieldErrors.content_en) {
+            setActiveTab('en');
+          }
         }
       } else {
         setSuccessMessage('સ્તુતિ સફળતાપૂર્વક સાચવવામાં આવી છે! (Prayer saved successfully)');
@@ -231,9 +249,22 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
 
       {/* Notifications */}
       {generalError && (
-        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-          <span>{generalError}</span>
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex flex-col gap-2">
+          <div className="flex items-center gap-2.5 font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>{generalError}</span>
+          </div>
+          {Object.keys(fieldErrors).length > 0 && (
+            <ul className="list-disc list-inside ml-6 space-y-0.5 text-[11px] text-red-600">
+              {Object.entries(fieldErrors).flatMap(([field, msgs]) =>
+                msgs.map((m, i) => (
+                  <li key={`${field}-${i}`}>
+                    <span className="font-semibold">{field}</span>: {m}
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
         </div>
       )}
 
@@ -289,12 +320,11 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
               <label className="block text-xs font-semibold text-maroon-primary mb-1.5">
                 સ્તુતિ / શ્લોક લખાણ (Sacred Text Content) <span className="text-red-600">*</span>
               </label>
-              <textarea
-                rows={10}
-                value={contentGu}
-                onChange={(e) => setContentGu(normalizeText(e.target.value))}
+              <RichTextEditor
+                content={contentGu}
+                onChange={setContentGu}
                 placeholder="અધરં મધુરં વદનં મધુરં..."
-                className="w-full text-sm font-serif leading-relaxed p-4 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+                minHeight="320px"
               />
               {fieldErrors.content_gu && (
                 <p className="text-xs text-red-600 mt-1">{fieldErrors.content_gu[0]}</p>
@@ -386,14 +416,13 @@ export default function PrayerForm({ initialData }: PrayerFormProps) {
 
             <div>
               <label className="block text-xs font-semibold text-maroon-primary mb-1.5">
-                English Prayer Translation (Optional)
+                Path & Meaning (English) (Optional)
               </label>
-              <textarea
-                rows={10}
-                value={contentEn}
-                onChange={(e) => setContentEn(normalizeText(e.target.value))}
+              <RichTextEditor
+                content={contentEn}
+                onChange={setContentEn}
                 placeholder="His lips are sweet, His face is sweet..."
-                className="w-full text-sm font-sans leading-relaxed p-4 rounded-xl bg-cream-base border border-gold-primary/40 text-maroon-primary placeholder:text-maroon-primary/40 focus:outline-none focus:ring-2 focus:ring-gold-primary/50"
+                minHeight="320px"
               />
             </div>
           </div>

@@ -53,7 +53,7 @@ export default function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading: { levels: [1, 2, 3] },
         blockquote: false,
         horizontalRule: false,
         link: false,
@@ -196,6 +196,20 @@ export default function RichTextEditor({
         </button>
 
         <div className="w-px h-5 bg-gold-primary/30 mx-1" />
+
+        {/* H1 */}
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+            editor.isActive('heading', { level: 1 })
+              ? 'bg-maroon-primary text-cream-base'
+              : 'text-maroon-primary/80 hover:bg-cream-surface hover:text-maroon-primary'
+          }`}
+          title="Heading 1 (મુખ્ય શીર્ષક)"
+        >
+          H1
+        </button>
 
         {/* H2 */}
         <button

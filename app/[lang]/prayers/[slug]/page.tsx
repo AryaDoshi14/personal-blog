@@ -7,6 +7,23 @@ import { OrnamentalDivider } from '@/components/ui/OrnamentalDivider';
 import { getPrayerBySlug, getPrayers } from '@/lib/db';
 import { Language } from '@/types';
 
+import { sanitizeHtml } from '@/lib/sanitize';
+
+function formatPrayerContent(rawContent?: string | null): string {
+  if (!rawContent) return '';
+  const normalized = rawContent.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+  const hasHtml = /<[a-z][\s\S]*>/i.test(normalized);
+  if (hasHtml) {
+    return sanitizeHtml(normalized);
+  }
+  // Convert plain text with newlines into HTML paragraphs and line breaks
+  const paragraphs = normalized
+    .split(/\n\n+/)
+    .map((p) => `<p>${p.replace(/\n/g, '<br />')}</p>`)
+    .join('');
+  return sanitizeHtml(paragraphs);
+}
+
 export const dynamicParams = true;
 export const revalidate = 300;
 
@@ -81,28 +98,53 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           <OrnamentalDivider className="my-4" />
         </div>
 
-        {/* Gujarati Sacred Text */}
-        <div className="bg-[#FFFDF9] border border-[#E8DFD3] rounded-3xl p-6 sm:p-10 shadow-sm mb-10">
-          <h2 className="text-xl font-bold text-[#501518] font-serif-gu mb-6 pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
-            <span>{isGu ? 'પવિત્ર સ્તુતિ / પાઠ' : 'Sacred Recitation (Gujarati Script)'}</span>
-            <span className="text-xs text-[#8C6D2D] font-normal">શ્રીજી સ્મરણ</span>
-          </h2>
-
-          <div className="text-lg sm:text-xl font-serif-gu leading-loose sm:leading-loose text-[#2C1A14] whitespace-pre-line text-center sm:text-left">
-            {(contentGu || '').replace(/\\n/g, '\n')}
-          </div>
-        </div>
-
-        {/* English Translation & Meaning (if available) */}
-        {contentEn && (
-          <div className="bg-[#F4EDE2]/50 border border-[#E8DFD3] rounded-3xl p-6 sm:p-10 shadow-sm mb-10">
+        {/* Gujarati Sacred Text (only on Gujarati page) */}
+        {isGu && (
+          <div className="bg-[#FFFDF9] border border-[#E8DFD3] rounded-3xl p-6 sm:p-10 shadow-sm mb-10">
             <h2 className="text-xl font-bold text-[#501518] font-serif-gu mb-6 pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
-              <span>{isGu ? 'અંગ્રેજી અનુવાદ અને ભાવાર્થ' : 'English Translation & Meaning'}</span>
+              <span>પવિત્ર સ્તુતિ / પાઠ</span>
+              <span className="text-xs text-[#8C6D2D] font-normal">શ્રીજી સ્મરણ</span>
             </h2>
 
-            <div className="text-base sm:text-lg leading-relaxed text-[#4A3830] whitespace-pre-line font-serif-gu">
-              {contentEn.replace(/\\n/g, '\n')}
-            </div>
+            <div
+              className="prose prose-stone lg:prose-lg max-w-none font-serif-gu leading-relaxed text-[#2C1A14]
+                prose-headings:text-[#501518] prose-headings:font-bold prose-headings:tracking-tight
+                prose-h1:text-2xl sm:prose-h1:text-3xl prose-h1:mt-6 prose-h1:mb-3 prose-h1:font-serif-gu
+                prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-5 prose-h2:mb-2.5 prose-h2:font-serif-gu
+                prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-4 prose-h3:mb-2 prose-h3:font-serif-gu
+                prose-p:mb-4 prose-p:text-lg sm:prose-p:text-xl prose-p:leading-loose
+                prose-strong:font-bold prose-strong:text-[#501518]
+                prose-blockquote:border-l-4 prose-blockquote:border-[#C59B4B] prose-blockquote:bg-[#F4EDE2]/50 prose-blockquote:p-4 prose-blockquote:rounded-r-xl prose-blockquote:italic
+                prose-a:text-[#501518] prose-a:underline prose-a:decoration-[#C59B4B] hover:prose-a:text-[#C59B4B]"
+              dangerouslySetInnerHTML={{ __html: formatPrayerContent(contentGu) }}
+            />
+          </div>
+        )}
+
+        {/* English Path and Meaning (only on English page) */}
+        {!isGu && (
+          <div className="bg-[#FFFDF9] border border-[#E8DFD3] rounded-3xl p-6 sm:p-10 shadow-sm mb-10">
+            <h2 className="text-xl font-bold text-[#501518] font-serif-gu mb-6 pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
+              <span>Path and Meaning</span>
+              <span className="text-xs text-[#8C6D2D] font-normal">Shreeji Smaran</span>
+            </h2>
+
+            <div
+              className="prose prose-stone lg:prose-lg max-w-none font-serif-gu leading-relaxed text-[#2C1A14]
+                prose-headings:text-[#501518] prose-headings:font-bold prose-headings:tracking-tight
+                prose-h1:text-2xl sm:prose-h1:text-3xl prose-h1:mt-6 prose-h1:mb-3 prose-h1:font-serif-gu
+                prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-5 prose-h2:mb-2.5 prose-h2:font-serif-gu
+                prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-4 prose-h3:mb-2 prose-h3:font-serif-gu
+                prose-p:mb-4 prose-p:text-base sm:prose-p:text-lg prose-p:leading-relaxed
+                prose-strong:font-bold prose-strong:text-[#501518]
+                prose-blockquote:border-l-4 prose-blockquote:border-[#C59B4B] prose-blockquote:bg-[#F4EDE2]/50 prose-blockquote:p-4 prose-blockquote:rounded-r-xl prose-blockquote:italic
+                prose-a:text-[#501518] prose-a:underline prose-a:decoration-[#C59B4B] hover:prose-a:text-[#C59B4B]"
+              dangerouslySetInnerHTML={{
+                __html:
+                  formatPrayerContent(contentEn) ||
+                  '<p class="italic text-[#8C6D2D]">English path and meaning will be added soon.</p>',
+              }}
+            />
           </div>
         )}
 

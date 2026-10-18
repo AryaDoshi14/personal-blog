@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: 'Dishant Doshi',
     images: [
       {
-        url: '/images/defaults/linkpic.jpg',
+        url: '/images/defaults/new_link_img.jpg',
         width: 1200,
         height: 800,
         alt: 'શ્રીજી બાબા દર્શન',

@@ -22,13 +22,13 @@ export const metadata: Metadata = {
     icon: '/images/defaults/logo-mandala.svg',
   },
   openGraph: {
-    title: 'શ્રીજી બાબાની કૃપા',
-    description: 'શ્રીજી બાબાની અપર કૃપાથી પ્રેરિત પુષ્ટિમાર્ગીય વૈષ્ણવ ભક્તિ અને પવિત્ર પ્રાર્થનાઓ.',
+    title: 'Dishant Doshi',
+    description: 'મારા મનના વિચારો, જ્યાં ભક્તિ, પરંપરા અને પરિવારનો સુંદર સંગમ થાય છે.',
     url: 'https://www.dishantdoshi.com/gu',
-    siteName: 'શ્રીજી બાબાની કૃપા',
+    siteName: 'Dishant Doshi',
     images: [
       {
-        url: '/images/defaults/hero-shrinathji.webp',
+        url: '/images/defaults/linkpic.jpg',
         width: 1200,
         height: 800,
         alt: 'શ્રીજી બાબા દર્શન',
